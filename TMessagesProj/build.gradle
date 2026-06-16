@@ -98,6 +98,13 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
+    //mmm only keep the `liblanguage_id_l2c_jni.so` file for the arm64-v8a ABI
+    packaging {
+        jniLibs {
+            // Explicitly exclude all ABIs except arm64-v8a
+            excludes += ['lib/armeabi-v7a/**', 'lib/x86/**', 'lib/x86_64/**']
+        }
+    }
 
     defaultConfig {
         minSdkVersion 21
@@ -111,6 +118,8 @@ android {
             cmake {
                 version '3.10.2'
                 arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+
+                abiFilters 'arm64-v8a' //mmm only build the JNI for the arm64-v8a ABI
             }
         }
     }
