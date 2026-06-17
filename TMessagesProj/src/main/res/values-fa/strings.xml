@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="AppName">تلگرام</string>
+    <string name="AppNameBeta">تلگرام بتا</string>
+    <string name="LanguageName">فارسی</string>
+    <string name="English">انگلیسی</string>
+    <string name="LanguageNameInEnglish">Persian</string>
+    <string name="LanguageCode">fa</string>
+    <string name="ContinueOnThisLanguage">ادامه به فارسی</string>
+    <!--signin view-->
+    <string name="YourPhone">شماره تلفن شما</string>
+    <string name="StartText">لطفاً کد کشور خود را تأیید کرده و شماره تلفنتان را وارد کنید.</string>
+    <string name="Country">کشور</string>
+    <string name="YourNumber">شماره تلفن شما</string>
+    <string name="PhoneNumber">شماره تلفن</string>
+    <string name="ChooseCountry">انتخاب کشور</string>
+    <string name="WrongCountry">کد کشور نامعتبر است</string>
+    <string name="AccountAlreadyLoggedIn">این حساب از قبل در این برنامه وارد شده است.</string>
+    <string name="AccountSwitch">تغییر</string>
+    <string name="SyncContacts">همگام‌سازی مخاطبین</string>
+    <string name="SyncContactsOn">مخاطبین این دستگاه به این حساب اضافه خواهند شد.</string>
+    <string name="SyncContactsOff">مخاطبین این دستگاه به این حساب اضافه نخواهند شد.</string>
+    <string name="SyncContactsInfoOn">مخاطبین این دستگاه به حساب شما اضافه خواهند شد.</string>
+    <string name="SyncContactsInfoOff">برای همگام‌سازی مداوم مخاطبین این دستگاه با حسابتان فعال کنید.</string>
+    <string name="SyncContactsAdded">مخاطبین این دستگاه به حساب شما اضافه شدند.</string>
+    <string name="ConfirmCorrectNumber">آیا این شماره صحیح است؟</string>
+    <string name="WrongNumberFormat">فرمت اشتباه</string>
+    <string name="EditNumber">ویرایش شماره</string>
+    <string name="DidNotGetTheCodeHelpButton">کمک</string>
+    <string name="DidNotGetTheCodeEditNumberButton">ویرایش شماره</string>
+    <!--code enter view-->
+    <string name="YourCode">تأیید تلفن</string>
+    <string name="SentSmsCodeTitle">کد را وارد کنید</string>
+    <string name="Code">کد</string>
+    <string name="WrongNumber">شماره اشتباه؟</string>
+    <string name="WrongCode">کد اشتباه وارد کردید. لطفاً دوباره امتحان کنید.</string>
+    <string name="DidNotGetTheCode">کد را دریافت نکردید؟</string>
+    <string name="DidNotGetTheCodeSms">ارسال کد از طریق پیامک</string>
+    <string name="ResetAccount">بازنشانی حساب</string>
+    <string name="Cancel">لغو</string>
+    <string name="OK">تأیید</string>
+    <string name="Done">انجام شد</string>
+    <string name="Next">بعدی</string>
+    <string name="Back">بازگشت</string>
+    <string name="Close">بستن</string>
+    <string name="Search">جستجو</string>
+    <string name="Settings">تنظیمات</string>
+    <string name="Chats">چت‌ها</string>
+    <string name="Contacts">مخاطبین</string>
+    <string name="Calls">تماس‌ها</string>
+    <string name="MainTabsChats">اعلان‌ها</string>
+    <string name="MainTabsContacts">تقویم</string>
+    <string name="MainTabsCalls">ویترین</string>
+    <string name="MainTabsProfile">نمایه</string>
+    <string name="MainTabsSettings">ویترین</string>
+</resources>
