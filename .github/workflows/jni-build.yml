@@ -1,0 +1,100 @@
+name: Build JNI libs (for Caching)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build (with CMake enabled)'
+        required: true
+        default: 'base' # Note: We've changed the build config at the main branch to skip the JNI build
+
+jobs:
+  build-native:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Clean project to force fresh CMake execution
+        run: ./gradlew clean
+
+      - name: Build the project (Generates APK/AAR with stripped libs)
+        run: ./gradlew :TMessagesProj:assembleDebug
+
+      - name: Log all generated APK/AAR files
+        run: |
+          echo "--- Searching for generated archives in build outputs ---"
+          find TMessagesProj/build/outputs -type f \( -name "*.apk" -o -name "*.aar" \) ! -name "*unaligned*" -exec ls -lh {} \;
+
+      - name: Extract stripped libs (All ABIs and arm64-v8a only)
+        run: |
+          mkdir -p collected-libs-all
+          mkdir -p collected-libs-arm64/arm64-v8a
+          mkdir -p temp_unzip_all
+          mkdir -p temp_unzip_arm64
+
+          # Find the generated archive (ignores "unaligned" apks)
+          ARCHIVE=$(find TMessagesProj/build/outputs -type f \( -name "*.apk" -o -name "*.aar" \) ! -name "*unaligned*" | head -n 1)
+
+          if [ -z "$ARCHIVE" ]; then
+            echo "ERROR: Could not find APK or AAR in build outputs!"
+            exit 1
+          fi
+
+          echo "Using archive for extraction: $ARCHIVE"
+
+          # 1. Extract ALL ABIs into temp_unzip_all
+          # APKs use 'lib/<abi>/', AARs use 'jni/<abi>/'
+          unzip -q "$ARCHIVE" "lib/*/*.so" -d temp_unzip_all/ 2>/dev/null || true
+          unzip -q "$ARCHIVE" "jni/*/*.so" -d temp_unzip_all/ 2>/dev/null || true
+
+          # 2. Extract ONLY arm64-v8a into temp_unzip_arm64
+          unzip -q "$ARCHIVE" "lib/arm64-v8a/*.so" -d temp_unzip_arm64/ 2>/dev/null || true
+          unzip -q "$ARCHIVE" "jni/arm64-v8a/*.so" -d temp_unzip_arm64/ 2>/dev/null || true
+
+          # 3. Copy preserving directory structure (NO 'find' flattening!)
+          # Check if it was an APK (lib/) or AAR (jni/) and copy the whole folder
+          if [ -d "temp_unzip_all/lib" ]; then
+            echo "Copying from APK 'lib/' structure..."
+            cp -r temp_unzip_all/lib/* collected-libs-all/
+          elif [ -d "temp_unzip_all/jni" ]; then
+            echo "Copying from AAR 'jni/' structure..."
+            cp -r temp_unzip_all/jni/* collected-libs-all/
+          fi
+
+          if [ -d "temp_unzip_arm64/lib/arm64-v8a" ]; then
+            cp -r temp_unzip_arm64/lib/arm64-v8a/* collected-libs-arm64/arm64-v8a/
+          elif [ -d "temp_unzip_arm64/jni/arm64-v8a" ]; then
+            cp -r temp_unzip_arm64/jni/arm64-v8a/* collected-libs-arm64/arm64-v8a/
+          fi
+
+          # Clean up temp directories
+          rm -rf temp_unzip_all temp_unzip_arm64
+
+          echo "--- Final extracted libraries (ALL ABIs) ---"
+          ls -lhR collected-libs-all/ || echo "(None found)"
+
+          echo "--- Final extracted libraries (arm64-v8a ONLY) ---"
+          ls -lhR collected-libs-arm64/arm64-v8a/ || echo "(None found)"
+
+      - name: Upload prebuilt native libraries (ALL ABIs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-jni-libs-all
+          path: collected-libs-all/
+          retention-days: 90
+
+      - name: Upload prebuilt native libraries (arm64-v8a ONLY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-jni-libs-arm64
+          path: collected-libs-arm64/
+          retention-days: 90

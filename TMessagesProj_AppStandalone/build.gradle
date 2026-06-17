@@ -28,7 +28,8 @@ android {
 
     defaultConfig.applicationId = APP_PACKAGE
 
-    sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
+    //mmm using the prebuilt TMessagesProj/src/main/jniLibs/arm64-v8a/libtmessages.49.so
+    // sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
     lintOptions {
         disable 'MissingTranslation'
@@ -139,14 +140,15 @@ android {
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
-        externalNativeBuild {
-            cmake {
-                version '3.10.2'
-                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+        //mmm using the prebuilt TMessagesProj/src/main/jniLibs/arm64-v8a/libtmessages.49.so
+        // externalNativeBuild {
+        //     cmake {
+        //         version '3.10.2'
+        //         arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
 
-                abiFilters 'arm64-v8a' //mmm only build the JNI for the arm64-v8a ABI
-            }
-        }
+        //         abiFilters 'arm64-v8a' //mmm only build the JNI for the arm64-v8a ABI
+        //     }
+        // }
     }
 
     buildFeatures {

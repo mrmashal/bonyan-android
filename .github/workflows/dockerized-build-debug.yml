@@ -1,4 +1,4 @@
-name: Dockerized Build Debug
+name: Build Debug (Dockerized)
 
 on:
   workflow_dispatch:
@@ -18,15 +18,30 @@ jobs:
       with:
         ref: ${{ github.event.inputs.branch }}
 
+    - name: Download latest prebuilt JNI libs (arm64-v8a only)
+      uses: dawidd6/action-download-artifact@v6
+      with:
+        workflow: jni-build.yml
+        name: prebuilt-jni-libs-arm64 # fetch only the arm64 artifact
+        path: TMessagesProj/src/main/jniLibs/
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        workflow_conclusion: success
+
+    - name: Verify downloaded libraries
+      run: |
+        echo "Libraries ready for packaging:"
+        ls -lh TMessagesProj/src/main/jniLibs/arm64-v8a/
+
     - name: Build Docker image
       run: docker build -t telegram-builder .
 
-    - name: Build APK in Docker
+    - name: Build APK in Docker (Bypasses CMake)
       run: |
         # Run the container and mount the workspace to /home/source
+        # The Dockerfile has CMake commented out, so it just packages the downloaded .so files
         docker run --rm -v ${{ github.workspace }}:/home/source telegram-builder
 
-        # Fix file permissions since the container might run as root
+        # Fix permissions so the artifact uploader can read the files
         sudo chown -R $USER:$USER ${{ github.workspace }}/TMessagesProj/build/outputs/apk
 
     - name: Upload APK artifact
@@ -34,4 +49,4 @@ jobs:
       with:
         name: Telegram-Debug-APK
         path: TMessagesProj/build/outputs/apk/**/*.apk
-        if-no-files-found: warn
+        if-no-files-found: error
