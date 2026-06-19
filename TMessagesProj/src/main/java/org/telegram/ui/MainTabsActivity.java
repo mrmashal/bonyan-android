@@ -264,8 +264,15 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             final GlassTabView view = tabs[index];
 
             final int position = indexToPosition(index);
+            final int indexFinal = index;
             tabs[index].setOnClickListener(v -> {
                 if (viewPager.isManualScrolling() || viewPager.isTouch()) {
+                    return;
+                }
+
+                // Bonyan: Check login for Profile tab
+                if (indexFinal == INDEX_PROFILE && !UserConfig.getInstance(currentAccount).isClientActivated()) {
+                    presentFragment(new LoginActivity(currentAccount));
                     return;
                 }
 
@@ -567,6 +574,10 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             dialogsActivity.setMainTabsActivityController(new MainTabsActivityControllerImpl());
             return dialogsActivity;
         } else if (position == POSITION_PROFILE) {
+            // Bonyan: Check login before creating Profile fragment
+            if (!UserConfig.getInstance(currentAccount).isClientActivated()) {
+                return null;
+            }
             Bundle args = new Bundle();
             args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
             args.putBoolean("my_profile", true);

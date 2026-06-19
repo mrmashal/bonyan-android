@@ -559,9 +559,16 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         LiteMode.addOnPowerSaverAppliedListener(onPowerSaverCallback = this::onPowerSaver);
         if (actionBarLayout.getFragmentStack().isEmpty() && (layersActionBarLayout == null || layersActionBarLayout.getFragmentStack().isEmpty())) {
-            if (!UserConfig.getInstance(currentAccount).isClientActivated()) {
-                actionBarLayout.addFragmentToStack(getClientNotActivatedFragment());
+            // Bonyan: Check if onboarding has been shown
+            SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE);
+            boolean onboardingShown = preferences.getBoolean("bonyan_onboarding_shown", false);
+
+            if (!onboardingShown) {
+                // Show IntroActivity for onboarding on first run
+                IntroActivity introActivity = new IntroActivity();
+                actionBarLayout.addFragmentToStack(introActivity);
             } else {
+                // Bonyan: Always start with MainTabsActivity, login check is handled per-tab
                 MainTabsActivity mainTabsActivity = new MainTabsActivity();
                 actionBarLayout.addFragmentToStack(mainTabsActivity);
             }

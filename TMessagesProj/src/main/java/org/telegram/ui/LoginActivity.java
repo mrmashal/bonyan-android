@@ -1646,6 +1646,24 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
     private boolean pendingSwitchingAccount;
 
+    // Bonyan: Mock login flag - when true, any phone number will login with fake data
+    public static final boolean BONYAN_MOCK_LOGIN = true;
+
+    // Bonyan: Create mock user data for demo login
+    private TLRPC.TL_auth_authorization createMockUser(String phoneNumber) {
+        TLRPC.TL_auth_authorization auth = new TLRPC.TL_auth_authorization();
+        auth.user = new TLRPC.TL_user();
+        auth.user.id = Utilities.random.nextLong();
+        auth.user.first_name = "کاربر";
+        auth.user.last_name = "نمونه";
+        auth.user.phone = phoneNumber.replaceAll("[^0-9]", "");
+        auth.user.username = "demo_user" + Math.abs(auth.user.id % 10000);
+        auth.user.status = new TLRPC.TL_userStatusRecently();
+        auth.user.photo = new TLRPC.TL_userProfilePhoto();
+        auth.user.photo.photo_id = Utilities.random.nextLong();
+        return auth;
+    }
+
     private void onAuthSuccess(TLRPC.TL_auth_authorization res, boolean afterSignup) {
         MessagesController.getInstance(currentAccount).cleanup();
         ConnectionsManager.getInstance(currentAccount).setUserId(res.user.id);
@@ -3138,6 +3156,28 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                     settings.unknown_number = true;
                     FileLog.e(e);
                 }
+            }
+
+            // Bonyan: If mock login is enabled, skip API call and create fake user
+            if (BONYAN_MOCK_LOGIN) {
+                final String phoneForMock = phone;
+                final Bundle mockParams = new Bundle();
+                mockParams.putString("phone", "+" + codeField.getText() + " " + phoneField.getText());
+                mockParams.putString("phoneFormated", phoneForMock);
+
+                nextPressed = true;
+                needShowProgress(0);
+
+                // Simulate network delay
+                AndroidUtilities.runOnUIThread(() -> {
+                    nextPressed = false;
+                    needHideProgress(false);
+
+                    // Create mock user and login
+                    TLRPC.TL_auth_authorization mockAuth = createMockUser(phoneForMock);
+                    onAuthSuccess(mockAuth, false);
+                }, 1000);
+                return;
             }
 
             TLObject req;
@@ -8783,7 +8823,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             showProxyButton(false, animated);
         }
     }
-    
+
     private boolean proxyButtonVisible;
     private Runnable showProxyButtonDelayed;
     private void showProxyButtonDelayed() {

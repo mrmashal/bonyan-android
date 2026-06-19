@@ -384,7 +384,13 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
             }
             startPressed = true;
 
-            presentFragment(new LoginActivity().setIntroView(frameContainerView, startMessagingButton), true);
+            // Bonyan: Mark onboarding as completed and navigate to MainTabsActivity
+            SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE);
+            preferences.edit().putBoolean("bonyan_onboarding_shown", true).apply();
+
+            // Navigate to MainTabsActivity (chats screen)
+            MainTabsActivity mainTabsActivity = new MainTabsActivity();
+            presentFragment(mainTabsActivity, true);
             destroyed = true;
         });
 
@@ -413,7 +419,13 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
 
                         NotificationCenter.getGlobalInstance().removeObserver(this, id);
                         AndroidUtilities.runOnUIThread(()->{
-                            presentFragment(new LoginActivity().setIntroView(frameContainerView, startMessagingButton), true);
+                            // Bonyan: Mark onboarding as completed and navigate to MainTabsActivity
+                            SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE);
+                            preferences.edit().putBoolean("bonyan_onboarding_shown", true).apply();
+
+                            // Navigate to MainTabsActivity (chats screen)
+                            MainTabsActivity mainTabsActivity = new MainTabsActivity();
+                            presentFragment(mainTabsActivity, true);
                             destroyed = true;
                         }, 100);
                     }
