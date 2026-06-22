@@ -20,7 +20,6 @@ import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
-import org.telegram.ui.Components.ToastBuilder;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -136,10 +135,12 @@ public class BonyanPersonDetailFragment extends BonyanBaseFragment {
             db.familyRelationDao().insert(relation);
 
             AndroidUtilities.runOnUIThread(() -> {
-                new ToastBuilder()
-                    .message("درخواست ارسال شد")
-                    .duration(org.telegram.ui.Components.Toast.LENGTH_SHORT)
-                    .show();
+                if (getParentActivity() != null) {
+                    org.telegram.ui.Components.BulletinFactory.of(this).createSimpleBulletin(
+                        org.telegram.messenger.R.raw.done,
+                        "درخواست ارسال شد"
+                    ).show();
+                }
             });
         });
     }
