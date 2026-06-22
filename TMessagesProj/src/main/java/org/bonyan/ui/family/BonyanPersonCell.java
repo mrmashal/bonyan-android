@@ -86,7 +86,7 @@ public class BonyanPersonCell extends FrameLayout {
         statusTextView.setText(status);
 
         // Set avatar placeholder
-        avatarImageView.setImage(null, null, Theme.createCircleDrawable(AndroidUtilities.dp(46), Theme.getColor(Theme.key_avatar_backgroundSaved)), null, 0, null);
+        avatarImageView.setImage(null, null, Theme.createCircleDrawable(AndroidUtilities.dp(46), Theme.getColor(Theme.key_avatar_backgroundSaved)), null);
     }
 
     private String formatRelationType(String type) {
