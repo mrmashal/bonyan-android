@@ -25,15 +25,13 @@ public abstract class BonyanBaseFragment extends BaseFragment {
     }
 
     @Override
-    public void onFragmentCreate() {
-        super.onFragmentCreate();
-        // Initialize Bonyan-specific resources here
+    public boolean onFragmentCreate() {
+        return super.onFragmentCreate();
     }
 
     @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
-        // Clean up Bonyan-specific resources here
     }
 
     @Override
