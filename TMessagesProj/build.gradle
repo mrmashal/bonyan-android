@@ -3,8 +3,8 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 apply plugin: 'com.android.library'
 
 repositories {
-    mavenCentral()
     google()
+    mavenCentral()
 }
 
 configurations {
@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.google.android.recaptcha:recaptcha:18.7.1'
 
     // Room Database for Bonyan
-    def room_version = "2.6.1"
+    def room_version = "2.5.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 

@@ -38,6 +38,9 @@ public class Person {
     @ColumnInfo(name = "reputation_score")
     private int reputationScore;
 
+    @ColumnInfo(name = "is_logged_in_user")
+    private boolean isLoggedInUser;
+
     @ColumnInfo(name = "last_synced_at")
     private long lastSyncedAt;
 
@@ -51,6 +54,7 @@ public class Person {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.reputationScore = 0;
+        this.isLoggedInUser = false;
     }
 
     // Getters and Setters
@@ -117,6 +121,14 @@ public class Person {
 
     public void setReputationScore(int reputationScore) {
         this.reputationScore = reputationScore;
+    }
+
+    public boolean isLoggedInUser() {
+        return isLoggedInUser;
+    }
+
+    public void setLoggedInUser(boolean loggedInUser) {
+        isLoggedInUser = loggedInUser;
     }
 
     public long getLastSyncedAt() {

@@ -33,8 +33,17 @@ public interface PersonDao {
     @Query("SELECT * FROM persons WHERE id = :id")
     Person getById(String id);
 
+    @Query("SELECT * FROM persons WHERE is_logged_in_user = 1 LIMIT 1")
+    Person getLoggedInUser();
+
+    @Query("SELECT * FROM persons WHERE is_logged_in_user = 0 ORDER BY name ASC")
+    List<Person> getAllExceptLoggedIn();
+
     @Query("SELECT * FROM persons ORDER BY name ASC")
     List<Person> getAll();
+
+    @Query("SELECT * FROM persons WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
+    List<Person> searchByName(String query);
 
     @Query("SELECT * FROM persons WHERE last_synced_at < :timestamp")
     List<Person> getOutdated(long timestamp);

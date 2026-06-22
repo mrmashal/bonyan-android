@@ -6,11 +6,15 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import org.bonyan.data.local.dao.FamilyRelationDao;
 import org.bonyan.data.local.dao.MissionDao;
 import org.bonyan.data.local.dao.PersonDao;
+import org.bonyan.data.local.dao.PersonTagDao;
 import org.bonyan.data.local.dao.SyncQueueDao;
+import org.bonyan.data.local.entity.FamilyRelation;
 import org.bonyan.data.local.entity.Mission;
 import org.bonyan.data.local.entity.Person;
+import org.bonyan.data.local.entity.PersonTag;
 import org.bonyan.data.local.entity.SyncQueue;
 
 /**
@@ -18,16 +22,18 @@ import org.bonyan.data.local.entity.SyncQueue;
  * This is the main database class that holds the database and serves as
  * the main access point for the underlying connection.
  *
- * Database version: 1
- * Entities: Person, Mission, SyncQueue
+ * Database version: 2
+ * Entities: Person, PersonTag, FamilyRelation, Mission, SyncQueue
  */
 @Database(
     entities = {
         Person.class,
+        PersonTag.class,
+        FamilyRelation.class,
         Mission.class,
         SyncQueue.class
     },
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 public abstract class BonyanDatabase extends RoomDatabase {
@@ -37,6 +43,8 @@ public abstract class BonyanDatabase extends RoomDatabase {
 
     // DAOs
     public abstract PersonDao personDao();
+    public abstract PersonTagDao personTagDao();
+    public abstract FamilyRelationDao familyRelationDao();
     public abstract MissionDao missionDao();
     public abstract SyncQueueDao syncQueueDao();
 
