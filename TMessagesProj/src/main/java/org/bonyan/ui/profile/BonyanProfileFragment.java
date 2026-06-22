@@ -193,7 +193,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
             View view;
             if (viewType == TYPE_HEADER) {
                 HeaderCell headerCell = new HeaderCell(mContext);
-                headerCell.setText(LocaleController.getString("UserInfo", org.telegram.messenger.R.string.UserInfo));
+                headerCell.setText(LocaleController.getString("PersonalDetails", org.telegram.messenger.R.string.PassportPersonalDetails));
                 view = headerCell;
             } else if (viewType == TYPE_SECTION_HEADER) {
                 HeaderCell headerCell = new HeaderCell(mContext);
