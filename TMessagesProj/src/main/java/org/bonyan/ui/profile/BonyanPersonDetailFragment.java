@@ -1,6 +1,7 @@
 package org.bonyan.ui.profile;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -83,15 +84,14 @@ public class BonyanPersonDetailFragment extends BonyanBaseFragment {
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         // Add claim relationship button at the bottom
-        org.telegram.ui.Components.BottomButton bottomButton = new org.telegram.ui.Components.BottomButton(context);
-        bottomButton.setText("ادعای ارتباط خانوادگی");
-        bottomButton.setBackgroundColor(Theme.getColor(Theme.key_featuredStickers_addButton));
-        bottomButton.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
+        org.telegram.ui.Cells.TextCell bottomButton = new org.telegram.ui.Cells.TextCell(context);
+        bottomButton.setTextAndIcon("ادعای ارتباط خانوادگی", org.telegram.messenger.R.drawable.msg_add, false);
+        bottomButton.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
         bottomButton.setOnClickListener(v -> claimRelationship());
-        frameLayout.addView(bottomButton, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.BOTTOM));
+        frameLayout.addView(bottomButton, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM));
 
         // Add padding to list to account for bottom button
-        listView.setPadding(0, 0, 0, AndroidUtilities.dp(48));
+        listView.setPadding(0, 0, 0, AndroidUtilities.dp(56));
 
         return fragmentView;
     }

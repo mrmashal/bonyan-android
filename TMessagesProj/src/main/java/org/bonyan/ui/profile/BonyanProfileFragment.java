@@ -59,10 +59,10 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
     public View createView(Context context) {
         actionBar.setBackButtonImage(org.telegram.messenger.R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(LocaleController.getString("Profile", org.telegram.messenger.R.string.Profile));
+        actionBar.setTitle(LocaleController.getString("Settings", org.telegram.messenger.R.string.Settings));
 
         ActionBarMenu menu = actionBar.createMenu();
-        menu.addItem(MENU_SETTINGS, org.telegram.messenger.R.drawable.ic_settings_24);
+        menu.addItem(MENU_SETTINGS, org.telegram.messenger.R.drawable.msg_settings);
 
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
@@ -193,7 +193,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
             View view;
             if (viewType == TYPE_HEADER) {
                 HeaderCell headerCell = new HeaderCell(mContext);
-                headerCell.setText(LocaleController.getString("PersonalInfo", org.telegram.messenger.R.string.PersonalInfo));
+                headerCell.setText(LocaleController.getString("UserInfo", org.telegram.messenger.R.string.UserInfo));
                 view = headerCell;
             } else if (viewType == TYPE_SECTION_HEADER) {
                 HeaderCell headerCell = new HeaderCell(mContext);

@@ -58,8 +58,8 @@ public class BonyanFamilyFragment extends BonyanBaseFragment {
         actionBar.setTitle("خانواده");
 
         ActionBarMenu menu = actionBar.createMenu();
-        menu.addItem(MENU_SEARCH, org.telegram.messenger.R.drawable.ic_search);
-        menu.addItem(MENU_SETTINGS, org.telegram.messenger.R.drawable.ic_settings_24);
+        menu.addItem(MENU_SEARCH, org.telegram.messenger.R.drawable.msg_search);
+        menu.addItem(MENU_SETTINGS, org.telegram.messenger.R.drawable.msg_settings);
 
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
