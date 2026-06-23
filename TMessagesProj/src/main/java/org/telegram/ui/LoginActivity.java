@@ -1663,8 +1663,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         auth.user.photo.photo_id = Utilities.random.nextLong();
         auth.user.photo.photo_small = new TLRPC.TL_fileLocationUnavailable();
         auth.user.photo.photo_big = new TLRPC.TL_fileLocationUnavailable();
-        auth.user.flags |= 32; // has_about
-        auth.user.about = "This is a demo account for Bonyan family management system.";
+        // auth.user.flags |= 32; // has_about
+        // auth.user.about = "This is a demo account for Bonyan family management system.";
         return auth;
     }
 
