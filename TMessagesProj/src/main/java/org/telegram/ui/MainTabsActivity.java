@@ -569,8 +569,10 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         // Fallback to default Telegram fragments if Bonyan is not available
         if (position == POSITION_CONTACTS) {
             Bundle args = new Bundle();
+            args.putBoolean("needPhonebook", true);
+            args.putBoolean("needFinishFragment", false);
             args.putBoolean("hasMainTabs", true);
-            return new PlannerActivity(args);
+            return new ContactsActivity(args);
         } else if (position == POSITION_CALLS_OR_SETTINGS) {
             if (getUserConfig().showCallsTab) {
                 Bundle args = new Bundle();
