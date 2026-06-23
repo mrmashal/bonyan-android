@@ -10335,7 +10335,7 @@
     <string name="GiftAuctionWearInfo3Header">Proof of Ownership</string>
     <string name="GiftAuctionWearInfo3Text">Tapping the icon of this item next to your name will show its info and owner.</string>
 
-    <string name="MainTabsContacts">Calendar</string>
+    <string name="MainTabsContacts">Planner</string>
     <string name="PlannerTitle">Planner</string>
     <string name="PlannerToday">Today</string>
     <string name="PlannerTomorrow">Tomorrow</string>
