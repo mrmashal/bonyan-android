@@ -19,9 +19,10 @@ import org.bonyan.ui.family.BonyanFamilyFragment;
 import org.bonyan.ui.mission.BonyanMissionListFragment;
 import org.bonyan.ui.planner.BonyanPlannerFragment;
 import org.bonyan.ui.profile.BonyanProfileFragment;
+import android.util.Log;
+
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.IBonyanEntryPoint;
 
@@ -93,7 +94,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     @Override
     public synchronized void initialize(Context context) {
         if (initialized || initializing) {
-            FileLog.w(TAG + ": Already initialized or initializing");
+            Log.w(TAG, "Already initialized or initializing");
             return;
         }
 
@@ -101,7 +102,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
         long startTime = System.currentTimeMillis();
 
         try {
-            FileLog.d(TAG + ": Initializing Bonyan subsystem...");
+            Log.d(TAG, "Initializing Bonyan subsystem...");
 
             // Initialize database on background thread
             initializeDatabase(context);
@@ -112,10 +113,10 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             initialized = true;
 
             long duration = System.currentTimeMillis() - startTime;
-            FileLog.d(TAG + ": Bonyan initialized successfully in " + duration + "ms");
+            Log.d(TAG, "Bonyan initialized successfully in " + duration + "ms");
 
         } catch (Exception e) {
-            FileLog.e(TAG + ": Failed to initialize Bonyan", e);
+            Log.e(TAG, "Failed to initialize Bonyan", e);
             // Reset state to allow retry
             initializing = false;
             throw new RuntimeException("Bonyan initialization failed", e);
@@ -135,10 +136,10 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             BonyanDatabase database = BonyanDatabase.getInstance(context);
 
             if (BuildVars.LOGS_ENABLED) {
-                FileLog.d(TAG + ": Database initialized successfully");
+                Log.d(TAG, "Database initialized successfully");
             }
         } catch (Exception e) {
-            FileLog.e(TAG + ": Failed to initialize database", e);
+            Log.e(TAG, "Failed to initialize database", e);
             throw e;
         }
     }
@@ -155,10 +156,10 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             profileFragment = new BonyanProfileFragment();
 
             if (BuildVars.LOGS_ENABLED) {
-                FileLog.d(TAG + ": Fragment instances pre-created");
+                Log.d(TAG, "Fragment instances pre-created");
             }
         } catch (Exception e) {
-            FileLog.e(TAG + ": Failed to pre-create fragments", e);
+            Log.e(TAG, "Failed to pre-create fragments", e);
             // Non-fatal: fragments will be created on-demand
         }
     }
@@ -172,7 +173,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     @Override
     public BaseFragment getFragment(int bottomNavTabId) {
         if (!initialized) {
-            FileLog.w(TAG + ": getFragment called before initialization");
+            Log.w(TAG, "getFragment called before initialization");
             return null;
         }
 
@@ -190,7 +191,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
                 return profileFragment != null ? profileFragment : new BonyanProfileFragment();
 
             default:
-                FileLog.w(TAG + ": Unknown tab ID: " + bottomNavTabId);
+                Log.w(TAG, "Unknown tab ID: " + bottomNavTabId);
                 return null;
         }
     }
@@ -203,12 +204,12 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     @Override
     public void onBottomNavTabSelected(int tabId) {
         if (!initialized) {
-            FileLog.w(TAG + ": onBottomNavTabSelected called before initialization");
+            Log.w(TAG, "onBottomNavTabSelected called before initialization");
             return;
         }
 
         if (BuildVars.LOGS_ENABLED) {
-            FileLog.d(TAG + ": Tab selected: " + tabId);
+            Log.d(TAG, "Tab selected: " + tabId);
         }
 
         // Notify the active fragment about tab selection
@@ -227,7 +228,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     @Override
     public View getBottomNavigationView(Activity activity) {
         if (!initialized) {
-            FileLog.w(TAG + ": getBottomNavigationView called before initialization");
+            Log.w(TAG, "getBottomNavigationView called before initialization");
             // Return a placeholder or throw exception
             throw new IllegalStateException("Bonyan not initialized");
         }
@@ -267,7 +268,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
      */
     @Override
     public void shutdown() {
-        FileLog.d(TAG + ": Shutting down Bonyan...");
+        Log.d(TAG, "Shutting down Bonyan...");
 
         try {
             // Close database connections
@@ -283,10 +284,10 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             initialized = false;
             instance = null;
 
-            FileLog.d(TAG + ": Bonyan shutdown complete");
+            Log.d(TAG, "Bonyan shutdown complete");
 
         } catch (Exception e) {
-            FileLog.e(TAG + ": Error during shutdown", e);
+            Log.e(TAG, "Error during shutdown", e);
         }
     }
 
