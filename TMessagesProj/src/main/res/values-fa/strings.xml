@@ -48,9 +48,9 @@
     <string name="Chats">چت‌ها</string>
     <string name="Contacts">مخاطبین</string>
     <string name="Calls">تماس‌ها</string>
-    <string name="MainTabsChats">اعلان‌ها</string>
+    <string name="MainTabsChats">ماموریت‌ها</string>
     <string name="MainTabsContacts">تقویم</string>
-    <string name="MainTabsCalls">ویترین</string>
+    <string name="MainTabsCalls">خانواده</string>
     <string name="MainTabsProfile">نمایه</string>
-    <string name="MainTabsSettings">ویترین</string>
+    <string name="MainTabsSettings">خانواده</string>
 </resources>

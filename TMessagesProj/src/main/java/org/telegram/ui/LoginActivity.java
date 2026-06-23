@@ -1653,14 +1653,18 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private TLRPC.TL_auth_authorization createMockUser(String phoneNumber) {
         TLRPC.TL_auth_authorization auth = new TLRPC.TL_auth_authorization();
         auth.user = new TLRPC.TL_user();
-        auth.user.id = Utilities.random.nextLong();
-        auth.user.first_name = "کاربر";
-        auth.user.last_name = "نمونه";
+        auth.user.id = 1000000000L + Math.abs(Utilities.random.nextLong() % 1000000000L);
+        auth.user.first_name = "Demo";
+        auth.user.last_name = "User";
         auth.user.phone = phoneNumber.replaceAll("[^0-9]", "");
         auth.user.username = "demo_user" + Math.abs(auth.user.id % 10000);
         auth.user.status = new TLRPC.TL_userStatusRecently();
         auth.user.photo = new TLRPC.TL_userProfilePhoto();
         auth.user.photo.photo_id = Utilities.random.nextLong();
+        auth.user.photo.photos_small = new TLRPC.TL_fileLocationUnavailable();
+        auth.user.photo.photos_big = new TLRPC.TL_fileLocationUnavailable();
+        auth.user.flags |= 32; // has_about
+        auth.user.about = "This is a demo account for Bonyan family management system.";
         return auth;
     }
 
