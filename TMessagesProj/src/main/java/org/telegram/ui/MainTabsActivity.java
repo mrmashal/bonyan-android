@@ -71,6 +71,9 @@ import java.util.Collections;
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
 
+// Bonyan imports for bridge pattern
+import org.bonyan.data.BonyanRegistry;
+
 public class MainTabsActivity extends ViewPagerActivity implements NotificationCenter.NotificationCenterDelegate, FactorAnimator.Target {
     public static final int TABS_COUNT = 4;
     private static final int POSITION_CHATS = 0;
@@ -250,10 +253,11 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         tabsView.setPadding(dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4));
 
         tabs = new GlassTabView[5];
-        tabs[INDEX_CHATS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CHATS, R.string.MainTabsChats);
-        tabs[INDEX_CONTACTS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CHECKLIST, R.string.MainTabsContacts);
+        // Bonyan: Updated tab titles for 4-tab navigation (Missions, Planner, Family, Profile)
+        tabs[INDEX_CHATS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CHATS, R.string.BonyanTabMissions);
+        tabs[INDEX_CONTACTS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CHECKLIST, R.string.BonyanTabPlanner);
         tabs[INDEX_SETTINGS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CONTACTS, R.string.MainTabsSettings);
-        tabs[INDEX_CALLS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CONTACTS, R.string.MainTabsCalls);
+        tabs[INDEX_CALLS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CONTACTS, R.string.BonyanTabFamily);
         tabs[INDEX_PROFILE] = GlassTabView.createAvatar(context, resourceProvider, currentAccount, R.string.MainTabsProfile);
         tabs[INDEX_PROFILE].setOnLongClickListener(v -> {
             openAccountSelector(v);
@@ -553,6 +557,16 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     protected BaseFragment createBaseFragmentAt(int position) {
+        // Bonyan: Use bridge pattern to delegate fragment creation to Bonyan modules
+        IBonyanEntryPoint bonyan = BonyanRegistry.get();
+        if (bonyan != null && bonyan.isInitialized()) {
+            BaseFragment bonyanFragment = bonyan.getFragment(position);
+            if (bonyanFragment != null) {
+                return bonyanFragment;
+            }
+        }
+
+        // Fallback to default Telegram fragments if Bonyan is not available
         if (position == POSITION_CONTACTS) {
             Bundle args = new Bundle();
             args.putBoolean("hasMainTabs", true);

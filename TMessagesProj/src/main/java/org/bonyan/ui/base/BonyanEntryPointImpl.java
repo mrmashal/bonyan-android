@@ -178,7 +178,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             case TAB_MISSIONS:
                 return missionsFragment != null ? missionsFragment : new BonyanMissionListFragment();
 
-            case TAB_CALENDAR:
+            case TAB_PLANNER:
                 return plannerFragment != null ? plannerFragment : new BonyanPlannerFragment();
 
             case TAB_FAMILY:

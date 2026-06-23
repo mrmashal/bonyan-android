@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Bonyan Bottom Navigation Tab Titles -->
+    <string name="BonyanTabMissions">Missions</string>
+    <string name="BonyanTabPlanner">Planner</string>
+    <string name="BonyanTabFamily">Family</string>
+
+    <!-- Bonyan Planner -->
+    <string name="PlannerTitle">Planner</string>
+    <string name="PlannerToday">Today</string>
+    <string name="PlannerTomorrow">Tomorrow</string>
+    <string name="PlannerOverdue">Overdue</string>
+    <string name="PlannerNoTasks">No tasks</string>
+    <string name="PlannerReturnToday">Return to Today</string>
+    <string name="PlannerNewTask">New Task</string>
+    <string name="PlannerEditTask">Edit Task</string>
+    <string name="PlannerTaskTitle">Title</string>
+    <string name="PlannerTaskDesc">Description (optional)</string>
+    <string name="PlannerDate">Date</string>
+    <string name="PlannerPriority">Priority</string>
+    <string name="PlannerPriorityNone">None</string>
+    <string name="PlannerPriorityLow">Low</string>
+    <string name="PlannerPriorityMed">Medium</string>
+    <string name="PlannerPriorityHigh">High</string>
+    <string name="PlannerReminder">Reminder</string>
+    <string name="PlannerTitleRequired">Title is required</string>
+    <string name="PlannerDeleteTask">Delete Task</string>
+    <string name="PlannerDeleteTaskConfirm">Are you sure you want to delete this task?</string>
+
     <string name="AppName">Telegram</string>
     <string name="AppNameBeta">Telegram Beta</string>
     <string name="LanguageName">English</string>
@@ -6741,8 +6768,8 @@
     <string name="SortByReactions">Reactions First</string>
     <string name="SortByReposts">Reposts First</string>
     <string name="SortByTime">Newest First</string>
-    <string name="StoryViewsSortDescription">Choose the order for the  list of viewers.</string>
-    <string name="StoryReactionsSortDescription">Choose the order for the  list of reactions.</string>
+    <string name="StoryViewsSortDescription">Choose the order for the list of viewers.</string>
+    <string name="StoryReactionsSortDescription">Choose the order for the list of reactions.</string>
     <string name="NoContactsViewed">None of your contacts viewed this story.</string>
     <string name="Viewers">Viewers</string>
     <string name="StealthModeConfirmTitle">You are in Stealth Mode now</string>
@@ -10336,26 +10363,6 @@
     <string name="GiftAuctionWearInfo3Text">Tapping the icon of this item next to your name will show its info and owner.</string>
 
     <string name="MainTabsContacts">Planner</string>
-    <string name="PlannerTitle">Planner</string>
-    <string name="PlannerToday">Today</string>
-    <string name="PlannerTomorrow">Tomorrow</string>
-    <string name="PlannerOverdue">Overdue</string>
-    <string name="PlannerNoTasks">No tasks</string>
-    <string name="PlannerReturnToday">Return to Today</string>
-    <string name="PlannerNewTask">New Task</string>
-    <string name="PlannerEditTask">Edit Task</string>
-    <string name="PlannerTaskTitle">Title</string>
-    <string name="PlannerTaskDesc">Description (optional)</string>
-    <string name="PlannerDate">Date</string>
-    <string name="PlannerPriority">Priority</string>
-    <string name="PlannerPriorityNone">None</string>
-    <string name="PlannerPriorityLow">Low</string>
-    <string name="PlannerPriorityMed">Medium</string>
-    <string name="PlannerPriorityHigh">High</string>
-    <string name="PlannerReminder">Reminder</string>
-    <string name="PlannerTitleRequired">Title is required</string>
-    <string name="PlannerDeleteTask">Delete Task</string>
-    <string name="PlannerDeleteTaskConfirm">Are you sure you want to delete this task?</string>
     <string name="MainTabsCalls">Family</string>
     <string name="MainTabsChats">Missions</string>
     <string name="MainTabsProfile">Profile</string>
