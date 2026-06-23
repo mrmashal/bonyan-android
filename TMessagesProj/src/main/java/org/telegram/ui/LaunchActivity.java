@@ -207,9 +207,6 @@ import org.telegram.ui.Components.spoilers.SpoilerEffect2;
 import org.telegram.ui.Components.voip.RTMPStreamPipOverlay;
 import org.telegram.ui.Components.voip.VoIPHelper;
 import org.telegram.ui.Gifts.GiftSheet;
-import org.bonyan.ui.base.BonyanBottomNav;
-import org.bonyan.ui.mission.BonyanMissionListFragment;
-import org.bonyan.data.local.BonyanDatabaseProvider;
 import org.telegram.ui.Stars.ISuperRipple;
 import org.telegram.ui.Gifts.AuctionJoinSheet;
 import org.telegram.ui.Stars.StarGiftPreviewSheet;
@@ -309,10 +306,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private Dialog proxyErrorDialog;
     private SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow selectAnimatedEmojiDialog;
     private View rippleAbove;
-
-    // Bonyan bottom navigation
-    private BonyanBottomNav bonyanBottomNav;
-    private boolean bonyanNavVisible = false;
     public Dialog getVisibleDialog() {
         for (int i = visibleDialogs.size() - 1; i >= 0; --i) {
             Dialog dialog = visibleDialogs.get(i);
@@ -531,22 +524,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 setVisibility(GONE);
             }
         });
-
-        // Bonyan: Initialize bottom navigation
-        bonyanBottomNav = new BonyanBottomNav(this);
-        bonyanBottomNav.setOnTabSelectedListener(tabId -> {
-            if (tabId == 0) {
-                // Missions tab - show Bonyan mission list
-                presentBonyanFragment(new BonyanMissionListFragment());
-            }
-            // Other tabs will be implemented in future phases
-        });
-        bonyanBottomNav.setVisibility(View.GONE); // Hidden by default
-        frameLayout.addView(bonyanBottomNav, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM));
-
-        // Bonyan: Initialize database
-        BonyanDatabaseProvider.getInstance().initialize(this);
-
         setupActionBarLayout();
         drawerLayoutContainer.setParentActionBarLayout(actionBarLayout);
         actionBarLayout.setDrawerLayoutContainer(drawerLayoutContainer);
@@ -6505,34 +6482,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     public INavigationLayout getRightActionBarLayout() {
         return rightActionBarLayout;
-    }
-
-    /**
-     * Bonyan: Present a Bonyan fragment and show the bottom navigation.
-     *
-     * @param fragment The Bonyan fragment to present
-     */
-    public void presentBonyanFragment(BaseFragment fragment) {
-        if (fragment == null) return;
-
-        // Show bottom navigation
-        if (bonyanBottomNav != null) {
-            bonyanBottomNav.setVisibility(View.VISIBLE);
-            bonyanNavVisible = true;
-        }
-
-        // Present the fragment
-        actionBarLayout.presentFragment(fragment, false, true, true, false);
-    }
-
-    /**
-     * Bonyan: Hide the bottom navigation.
-     */
-    public void hideBonyanBottomNav() {
-        if (bonyanBottomNav != null) {
-            bonyanBottomNav.setVisibility(View.GONE);
-            bonyanNavVisible = false;
-        }
     }
 
     @Override

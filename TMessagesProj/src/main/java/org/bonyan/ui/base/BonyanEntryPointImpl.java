@@ -62,9 +62,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     private BonyanFamilyFragment familyFragment;
     private BonyanProfileFragment profileFragment;
 
-    // Bottom navigation instance
-    private BonyanBottomNav bottomNav;
-
     /**
      * Public constructor for instantiation.
      * Use getInstance() or let BonyanInitProvider create the instance.
@@ -220,39 +217,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     }
 
     /**
-     * Returns the bottom navigation view for injection into LaunchActivity.
-     *
-     * @param activity The host activity (for context and lifecycle)
-     * @return The configured bottom navigation view
-     */
-    @Override
-    public View getBottomNavigationView(Activity activity) {
-        if (!initialized) {
-            Log.w(TAG, "getBottomNavigationView called before initialization");
-            // Return a placeholder or throw exception
-            throw new IllegalStateException("Bonyan not initialized");
-        }
-
-        // Create or reuse the bottom navigation instance
-        if (bottomNav == null) {
-            bottomNav = new BonyanBottomNav(activity);
-
-            // Set up tab selection listener
-            bottomNav.setOnTabSelectedListener(tabId -> {
-                onBottomNavTabSelected(tabId);
-
-                // Notify LaunchActivity to switch fragments
-                // This is done via the activity's fragment management
-                if (activity instanceof BonyanFragmentContainer) {
-                    ((BonyanFragmentContainer) activity).onBonyanTabSelected(tabId);
-                }
-            });
-        }
-
-        return bottomNav;
-    }
-
-    /**
      * Returns whether Bonyan is initialized and ready for use.
      *
      * @return true if Bonyan has been initialized, false otherwise
@@ -279,7 +243,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             plannerFragment = null;
             familyFragment = null;
             profileFragment = null;
-            bottomNav = null;
 
             initialized = false;
             instance = null;

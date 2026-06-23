@@ -8,9 +8,7 @@
 
 package org.telegram.ui;
 
-import android.app.Activity;
 import android.content.Context;
-import android.view.View;
 
 import org.telegram.ui.ActionBar.BaseFragment;
 
@@ -38,7 +36,7 @@ public interface IBonyanEntryPoint {
      * These must match the implementation in BonyanEntryPointImpl.
      */
     int TAB_MISSIONS = 0;
-    int TAB_CALENDAR = 1;
+    int TAB_PLANNER = 1;
     int TAB_FAMILY = 2;
     int TAB_PROFILE = 3;
 
@@ -64,7 +62,7 @@ public interface IBonyanEntryPoint {
      * - Activity is recreated (rotation, etc.)
      * - Initial fragment is needed
      *
-     * @param bottomNavTabId One of TAB_MISSIONS, TAB_CALENDAR, TAB_FAMILY, TAB_PROFILE
+     * @param bottomNavTabId One of TAB_MISSIONS, TAB_PLANNER, TAB_FAMILY, TAB_PROFILE
      * @return The Bonyan fragment instance, or null if tabId is invalid
      */
     BaseFragment getFragment(int bottomNavTabId);
@@ -81,22 +79,6 @@ public interface IBonyanEntryPoint {
      * @param tabId The ID of the selected tab (0-3)
      */
     void onBottomNavTabSelected(int tabId);
-
-    /**
-     * Returns the bottom navigation view for injection into LaunchActivity.
-     *
-     * This method creates and configures the Bonyan bottom navigation bar
-     * that will be displayed at the bottom of the screen.
-     *
-     * The returned view should:
-     * - Be fully configured with tab labels and icons
-     * - Have appropriate styling for the current theme
-     * - Include any necessary touch handlers
-     *
-     * @param activity The host activity (for context and lifecycle)
-     * @return The configured bottom navigation view
-     */
-    View getBottomNavigationView(Activity activity);
 
     /**
      * Returns whether Bonyan is initialized and ready for use.
