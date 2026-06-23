@@ -17,6 +17,8 @@ import org.bonyan.data.local.entity.Person;
 import org.bonyan.data.local.entity.PersonTag;
 import org.bonyan.data.local.entity.SyncQueue;
 
+import org.telegram.messenger.ApplicationLoader;
+
 /**
  * Room Database for Bonyan application.
  * This is the main database class that holds the database and serves as
@@ -47,6 +49,21 @@ public abstract class BonyanDatabase extends RoomDatabase {
     public abstract FamilyRelationDao familyRelationDao();
     public abstract MissionDao missionDao();
     public abstract SyncQueueDao syncQueueDao();
+
+    /**
+    * Get singleton instance using Telegram's application context.
+    * This avoids the need to pass context from every call site.
+    *
+    * @return BonyanDatabase instance
+    */
+    public static BonyanDatabase getInstance() {
+        // Read-only access to Telegram's static field - no core modification needed
+        Context context = org.telegram.messenger.ApplicationLoader.applicationContext;
+        if (context == null) {
+            throw new IllegalStateException("Application context not available. App not fully started.");
+        }
+        return getInstance(context);
+    }
 
     /**
      * Get singleton instance of the database.
