@@ -1,11 +1,12 @@
 /*
  * This file documents the minimal changes needed in LaunchActivity.java
- * to integrate the Bonyan Bridge Pattern.
+ * to integrate the Bonyan Bridge Pattern using ContentProvider auto-initialization.
  *
  * This is NOT a complete file - it shows the snippets that need to be
  * added to the existing LaunchActivity.java
  *
  * RULE: Keep total modifications under 50 lines.
+ * IMPROVEMENT: ZERO modifications to ApplicationLoader (ContentProvider handles init)
  */
 
 package org.telegram.ui;
@@ -13,13 +14,16 @@ package org.telegram.ui;
 // ... existing imports ...
 
 // STEP 1: Add this import
-import org.telegram.messenger.ApplicationLoader;
+import org.bonyan.data.BonyanRegistry;
+import org.bonyan.ui.BonyanFragmentContainer;
+import org.telegram.ui.IBonyanEntryPoint;
 
 // ... existing class definition ...
 
-public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate,
-        // STEP 2: Implement the BonyanFragmentContainer interface
-        BonyanEntryPointImpl.BonyanFragmentContainer {
+// STEP 2: Implement BonyanFragmentContainer interface
+public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, 
+        NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate,
+        BonyanFragmentContainer {
 
     // ... existing fields ...
 
@@ -34,20 +38,21 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     protected void onCreate(Bundle savedInstanceState) {
         // ... existing onCreate code ...
 
-        // STEP 4: Initialize Bonyan (add after ApplicationLoader.postInitApplication())
-        // This is the ONLY Bonyan initialization code in LaunchActivity
-        initializeBonyan();
+        // STEP 4: Initialize Bonyan UI (add after ApplicationLoader.postInitApplication())
+        // NOTE: Bonyan is already initialized via ContentProvider, just need UI setup
+        initializeBonyanUI();
 
         // ... rest of onCreate ...
     }
 
-    // STEP 5: Add this method (under 20 lines)
+    // STEP 5: Add this method (under 25 lines)
     /**
-     * Initializes Bonyan integration using the Bridge Pattern.
-     * This method keeps Telegram core decoupled from Bonyan implementation.
+     * Initializes Bonyan UI using the Bridge Pattern.
+     * Bonyan is already initialized via ContentProvider before Application.onCreate().
      */
-    private void initializeBonyan() {
-        bonyanEntryPoint = ApplicationLoader.getBonyanEntryPoint();
+    private void initializeBonyanUI() {
+        // Get the Bonyan entry point from the static registry
+        bonyanEntryPoint = BonyanRegistry.get();
         if (bonyanEntryPoint == null) {
             FileLog.w("Bonyan not initialized - entry point is null");
             return;

@@ -12,12 +12,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
+import org.bonyan.data.BonyanRegistry;
 import org.bonyan.data.local.BonyanDatabase;
+import org.bonyan.ui.BonyanFragmentContainer;
 import org.bonyan.ui.family.BonyanFamilyFragment;
 import org.bonyan.ui.mission.BonyanMissionListFragment;
 import org.bonyan.ui.planner.BonyanPlannerFragment;
 import org.bonyan.ui.profile.BonyanProfileFragment;
-import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -64,11 +66,12 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
 
     /**
      * Public constructor for instantiation.
-     * Use getInstance() or let ApplicationLoader create the instance.
+     * Use getInstance() or let BonyanInitProvider create the instance.
      */
     public BonyanEntryPointImpl() {
-        // Empty constructor - initialization happens in initialize()
+        // Register with the static registry for global access
         instance = this;
+        BonyanRegistry.register(this);
     }
 
     /**
@@ -287,16 +290,4 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
         }
     }
 
-    /**
-     * Interface for activities that host Bonyan fragments.
-     * LaunchActivity should implement this interface.
-     */
-    public interface BonyanFragmentContainer {
-        /**
-         * Called when a Bonyan tab is selected.
-         *
-         * @param tabId The selected tab ID
-         */
-        void onBonyanTabSelected(int tabId);
-    }
 }

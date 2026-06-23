@@ -681,6 +681,13 @@
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="org.telegram.messenger.chromecast.ChromecastOptionsProvider" />
 
+        <!-- Bonyan auto-initialization ContentProvider - runs before Application.onCreate() -->
+        <provider
+            android:name="org.bonyan.data.BonyanInitProvider"
+            android:authorities="${applicationId}.bonyaninit"
+            android:exported="false"
+            android:initOrder="100" />
+
     </application>
 
 </manifest>

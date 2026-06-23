@@ -77,35 +77,9 @@ public class ApplicationLoader extends Application {
     private static IMapsProvider mapsProvider;
     private static ILocationServiceProvider locationServiceProvider;
 
-    // Bonyan Bridge Interface - For Dependency Inversion
-    private static org.telegram.ui.IBonyanEntryPoint bonyanEntryPoint;
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-    }
-
-    /**
-     * Registers the Bonyan entry point implementation.
-     * This method enables the Bridge Pattern for clean separation
-     * between Telegram Core and Bonyan modules.
-     *
-     * @param entryPoint The Bonyan entry point implementation
-     */
-    public static void registerBonyan(org.telegram.ui.IBonyanEntryPoint entryPoint) {
-        bonyanEntryPoint = entryPoint;
-        if (BuildVars.LOGS_ENABLED) {
-            FileLog.d("Bonyan entry point registered");
-        }
-    }
-
-    /**
-     * Returns the registered Bonyan entry point.
-     *
-     * @return The Bonyan entry point, or null if not registered
-     */
-    public static org.telegram.ui.IBonyanEntryPoint getBonyanEntryPoint() {
-        return bonyanEntryPoint;
     }
 
     public static ILocationServiceProvider getLocationServiceProvider() {
