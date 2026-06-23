@@ -271,7 +271,7 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
 
         try {
             // Close database connections
-            BonyanDatabase.closeInstance();
+            BonyanDatabase.destroyInstance();
 
             // Clear fragment references
             missionsFragment = null;
