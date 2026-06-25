@@ -74,7 +74,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         public String title;
         public String description;
         public long dateMs;
-        public int priority;
+        public int priority; // 0=none 1=low 2=med 3=high
         public boolean completed;
         public boolean hasReminder;
 
@@ -166,7 +166,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         updateFabPosition();
     }
 
-    // createView
+    // ── createView ────────────────────────────────────────────────────────────
+
     @Override
     public View createView(Context context) {
         actionBar.setTitle(getString(R.string.PlannerTitle));
@@ -634,6 +635,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         static final int STRIP_H_DP  = 32;
         static final int HANDLE_H_DP = 24;
         static final int DOW_H_DP    = 32;
+        static final int MONTH_YEAR_H_DP = 32;
 
         private float expandFraction = 0f;
         private ValueAnimator expandAnim;
@@ -655,8 +657,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private final Paint dotPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final RectF rf        = new RectF();
 
-        private final TextView compactMonthLabel;
         private final ImageView returnTodayBtn;
+        private final TextView monthYearLabel;
 
         CalendarHeaderView(Context context) {
             super(context);
@@ -669,15 +671,6 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             selectedDayMs = BonyanPlannerFragment.todayMidnight();
             weekAnchorDayMs = selectedDayMs;
             expandScrollY = computeScrollYForDay(selectedDayMs);
-
-            compactMonthLabel = new TextView(context);
-            compactMonthLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-            compactMonthLabel.setTypeface(AndroidUtilities.bold());
-            compactMonthLabel.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-            compactMonthLabel.setSingleLine(true);
-            addView(compactMonthLabel, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, STRIP_H_DP,
-                    (LocaleController.isRTL ? Gravity.END : Gravity.START) | Gravity.TOP,
-                    LocaleController.isRTL ? 0 : 16, 0, LocaleController.isRTL ? 16 : 0, 0));
 
             returnTodayBtn = new ImageView(context);
             returnTodayBtn.setImageResource(R.drawable.ic_ab_back);
@@ -693,6 +686,16 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             addView(returnTodayBtn, LayoutHelper.createFrame(32, STRIP_H_DP,
                     (LocaleController.isRTL ? Gravity.START : Gravity.END) | Gravity.TOP,
                     LocaleController.isRTL ? 8 : 0, 0, LocaleController.isRTL ? 0 : 8, 0));
+
+            // Month-Year header label (visible in both modes)
+            monthYearLabel = new TextView(context);
+            monthYearLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+            monthYearLabel.setTypeface(AndroidUtilities.bold());
+            monthYearLabel.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+            monthYearLabel.setGravity(LocaleController.isRTL ? Gravity.START : Gravity.START);
+            addView(monthYearLabel, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT,
+                    (LocaleController.isRTL ? Gravity.START : Gravity.START) | Gravity.TOP,
+                    LocaleController.isRTL ? dp(16) : dp(16), dp(4), 0, 0));
 
             updateCompactMonthLabel();
         }
@@ -724,8 +727,9 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         void selectDay(long dayMs) { setSelectedDay(dayMs, true); }
 
         int computeHeight() {
-            int compactH = dp(STRIP_H_DP) + dp(CELL_H_DP) + dp(HANDLE_H_DP);
-            int expandedH = dp(DOW_H_DP) + dp(CELL_H_DP) * 6 + dp(HANDLE_H_DP);
+            int headerH = dp(MONTH_YEAR_H_DP); // Month-year header visible in both modes
+            int compactH = headerH + dp(STRIP_H_DP) + dp(CELL_H_DP) + dp(HANDLE_H_DP);
+            int expandedH = headerH + dp(DOW_H_DP) + dp(CELL_H_DP) * 6 + dp(HANDLE_H_DP);
             return (int)(compactH + (expandedH - compactH) * expandFraction);
         }
 
@@ -740,15 +744,19 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         protected void onLayout(boolean changed, int l, int t, int r, int b) {
             int w = r - l;
             float ca = 1f - expandFraction;
-            compactMonthLabel.setAlpha(ca); returnTodayBtn.setAlpha(ca);
+            returnTodayBtn.setAlpha(ca);
+            monthYearLabel.setAlpha(1f); // Month-year label always visible
+
             int stripH = dp(STRIP_H_DP);
-            int mlW = compactMonthLabel.getMeasuredWidth();
+            int headerH = dp(MONTH_YEAR_H_DP);
+            int myW = monthYearLabel.getMeasuredWidth();
+
             if (LocaleController.isRTL) {
-                compactMonthLabel.layout(w - dp(16) - mlW, 0, w - dp(16), stripH);
                 returnTodayBtn.layout(dp(8), 0, dp(40), stripH);
+                monthYearLabel.layout(w - dp(16) - myW, headerH / 2, w - dp(16), headerH / 2 + dp(16));
             } else {
-                compactMonthLabel.layout(dp(16), 0, dp(16) + mlW, stripH);
                 returnTodayBtn.layout(w - dp(40), 0, w - dp(8), stripH);
+                monthYearLabel.layout(dp(16), headerH / 2, dp(16) + myW, headerH / 2 + dp(16));
             }
         }
 
@@ -758,25 +766,14 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             int w = getWidth(), h = getHeight();
             int cellW = w / 7;
             int handleTop = h - dp(HANDLE_H_DP);
+            int headerH = dp(MONTH_YEAR_H_DP);
 
             // Background (only up to handle, handle drawn separately)
             bgPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhite));
             canvas.drawRect(0, 0, w, handleTop, bgPaint);
 
-            // Calendar content
-            if (expandFraction < 0.01f) {
-                drawCompact(canvas, w, cellW);
-            } else if (expandFraction > 0.99f) {
-                drawExpanded(canvas, w, cellW);
-            } else {
-                // Crossfade
-                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * (1f - expandFraction)));
-                drawCompact(canvas, w, cellW);
-                canvas.restore();
-                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * expandFraction));
-                drawExpanded(canvas, w, cellW);
-                canvas.restore();
-            }
+            // Calendar content - unified rendering
+            drawUnifiedCalendar(canvas, w, cellW, handleTop, headerH);
 
             // Draw handle bar on top
             drawHandleBar(canvas, w, h, handleTop);
@@ -824,43 +821,136 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             handleRippleAnim.start();
         }
 
-        private void drawCompact(Canvas canvas, int w, int cellW) {
+        private void drawUnifiedCalendar(Canvas canvas, int w, int cellW, int handleTop, int headerH) {
+            // Determine visibility and positions based on expandFraction
+            // In compact mode: show 1 week row at STRIP_H_DP + MONTH_YEAR_H_DP offset
+            // In expanded mode: show 6 week rows + DOW header
+
+            // Draw day-of-week header (visible in expanded, fades out in compact)
+            float dowAlpha = Math.min(1f, expandFraction * 2f); // Full visible when > 0.5
+            if (dowAlpha > 0.01f) {
+                String[] dowLabels = LocaleController.isRTL ?
+                    new String[]{"S","F","T","W","T","M","S"} : // RTL: Sun to Sat reversed
+                    new String[]{"S","M","T","W","T","F","S"};
+                txtPaint.setTextSize(dp(11));
+                txtPaint.setTypeface(AndroidUtilities.bold());
+                txtPaint.setTextAlign(Paint.Align.CENTER);
+                int dowColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2);
+                int alpha = (int)(dowAlpha * 255);
+                txtPaint.setColor(dowColor);
+                txtPaint.setAlpha(alpha);
+                int dowH = dp(DOW_H_DP);
+                int dowY = headerH + dowH / 2 + dp(4);
+                for (int col = 0; col < 7; col++) {
+                    int labelCol = LocaleController.isRTL ? 6 - col : col;
+                    int cx = col * cellW + cellW / 2;
+                    canvas.drawText(dowLabels[labelCol], cx, dowY, txtPaint);
+                }
+                txtPaint.setAlpha(255);
+            }
+
+            // Now draw the calendar grid
+            // We always draw the grid cells, but with different transforms based on mode
+            if (expandFraction < 0.99f) {
+                // Draw compact week view
+                drawCompactWeek(canvas, w, cellW, headerH, expandFraction);
+            }
+
+            if (expandFraction > 0.01f) {
+                // Draw expanded month view (with scroll)
+                drawExpandedGrid(canvas, w, cellW, handleTop, headerH, expandFraction);
+            }
+        }
+
+        private void drawCompactWeek(Canvas canvas, int w, int cellW, int headerH, float fraction) {
             int stripH = dp(STRIP_H_DP);
-            int offsetY = stripH; // week row starts below the month strip
-            // Find Monday of the week containing weekAnchorDayMs
+            int rowH = dp(CELL_H_DP);
+            // Position the row below the header + strip
+            int offsetY = headerH + stripH;
+
+            // Calculate week anchor (find Sunday of the week containing weekAnchorDayMs)
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(weekAnchorDayMs);
             int dow = c.get(Calendar.DAY_OF_WEEK); // 1=Sun
             c.add(Calendar.DAY_OF_YEAR, -(dow - 1)); // go to Sunday
+
             for (int col = 0; col < 7; col++) {
-                drawCell(canvas, col, cellW, offsetY, c.getTimeInMillis(), false);
+                long dayMs = c.getTimeInMillis();
+                boolean isSelected = dayMs == selectedDayMs;
+                boolean isToday = dayMs == BonyanPlannerFragment.todayMidnight();
+
+                // In compact mode, days before today are slightly dimmed
+                boolean isPast = dayMs < BonyanPlannerFragment.todayMidnight();
+
+                drawCellCompact(canvas, col, cellW, offsetY, rowH, dayMs, isSelected, isToday, isPast);
                 c.add(Calendar.DAY_OF_YEAR, 1);
             }
         }
 
-        private void drawExpanded(Canvas canvas, int w, int cellW) {
+        private void drawCellCompact(Canvas canvas, int col, int cellW, int offsetY, int rowH,
+                                     long dayMs, boolean isSelected, boolean isToday, boolean isPast) {
+            int cx = col * cellW + cellW / 2;
+            int cy = offsetY + rowH / 2;
+            float r = dp(17);
+
+            // Draw selection circle
+            if (isSelected) {
+                selPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
+                rf.set(cx - r, cy - r, cx + r, cy + r);
+                canvas.drawOval(rf, selPaint);
+            } else if (isToday) {
+                todayRing.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
+                todayRing.setAlpha(35);
+                rf.set(cx - r, cy - r, cx + r, cy + r);
+                canvas.drawOval(rf, todayRing);
+            }
+
+            // Draw day number
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(dayMs);
+            int dayNum = c.get(Calendar.DAY_OF_MONTH);
+
+            txtPaint.setTextSize(dp(15));
+            txtPaint.setTypeface(isSelected || isToday ? AndroidUtilities.bold() : android.graphics.Typeface.DEFAULT);
+            txtPaint.setTextAlign(Paint.Align.CENTER);
+
+            if (isSelected) {
+                txtPaint.setColor(Color.WHITE);
+            } else if (isToday) {
+                txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
+            } else if (isPast) {
+                txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
+                txtPaint.setAlpha(130);
+            } else {
+                txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+            }
+
+            canvas.drawText(String.valueOf(dayNum), cx, cy + dp(5), txtPaint);
+
+            // Task dot
+            for (Task t : tasks) {
+                if (t.dateMs == dayMs) {
+                    dotPaint.setColor(isSelected ? Color.WHITE
+                            : Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
+                    canvas.drawCircle(cx, cy + r - dp(2), dp(2.5f), dotPaint);
+                    break;
+                }
+            }
+
+            txtPaint.setAlpha(255); // Reset alpha
+        }
+
+        private void drawExpandedGrid(Canvas canvas, int w, int cellW, int handleTop, int headerH, float fraction) {
             int dowH = dp(DOW_H_DP);
-            int handleTop = getHeight() - dp(HANDLE_H_DP);
+            int gridTop = headerH + dowH;
 
             // Clip to ensure calendar doesn't draw over handle area
             canvas.save();
-            canvas.clipRect(0, 0, w, handleTop);
+            canvas.clipRect(0, gridTop, w, handleTop);
 
-            // Day-of-week header row
-            String[] dowLabels = {"S","M","T","W","T","F","S"};
-            txtPaint.setTextSize(dp(11));
-            txtPaint.setTypeface(AndroidUtilities.bold());
-            txtPaint.setTextAlign(Paint.Align.CENTER);
-            txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
-            for (int col = 0; col < 7; col++) {
-                int cx = col * cellW + cellW / 2;
-                canvas.drawText(dowLabels[col], cx, dowH / 2f + dp(4), txtPaint);
-            }
-            // Infinite month grid — draw rows visible in [dowH, handleTop)
-            int gridTop = dowH;
             int gridH = handleTop - gridTop;
-            // expandScrollY = px from top of the infinite grid to the top of the visible area
             float scrollY = expandScrollY;
+
             // Determine which row is first visible
             int firstRow = (int)(scrollY / dp(CELL_H_DP));
             float rowOffset = scrollY - firstRow * dp(CELL_H_DP);
@@ -871,20 +961,22 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             Calendar topCal = Calendar.getInstance();
             topCal.setTimeInMillis(topVisibleDay);
             int currentMonth = topCal.get(Calendar.MONTH);
-            int currentYear  = topCal.get(Calendar.YEAR);
+            int currentYear = topCal.get(Calendar.YEAR);
 
             for (int ri = 0; ri < visibleRows; ri++) {
                 int row = firstRow + ri;
                 int rowY = gridTop + (int)(ri * dp(CELL_H_DP) - rowOffset);
+
                 for (int col = 0; col < 7; col++) {
-                    long dayMs = rowToDay(row * 7 + col - (row * 7 + col) % 7 + col);
-                    // Recompute: absolute cell index = row*7 + col
-                    dayMs = cellIndexToDay(row * 7 + col);
+                    long dayMs = cellIndexToDay(row * 7 + col);
                     Calendar dc = Calendar.getInstance();
                     dc.setTimeInMillis(dayMs);
                     boolean isNextMonth = dc.get(Calendar.MONTH) != currentMonth
                             || dc.get(Calendar.YEAR) != currentYear;
-                    drawCell(canvas, col, cellW, rowY, dayMs, true, isNextMonth);
+
+                    // Call the unified cell drawing method
+                    drawCellExpanded(canvas, col, cellW, rowY, dayMs, isNextMonth);
+
                     // Draw month label above the 1st of each month
                     if (dc.get(Calendar.DAY_OF_MONTH) == 1) {
                         SimpleDateFormat mf = new SimpleDateFormat("MMM", Locale.getDefault());
@@ -900,24 +992,21 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     }
                 }
             }
+
             canvas.restore();
         }
 
-        private void drawCell(Canvas canvas, int col, int cellW, int offsetY,
-                              long dayMs, boolean showNum) {
-            drawCell(canvas, col, cellW, offsetY, dayMs, showNum, false);
-        }
-
-        private void drawCell(Canvas canvas, int col, int cellW, int offsetY,
-                              long dayMs, boolean showNum, boolean dimmed) {
+        private void drawCellExpanded(Canvas canvas, int col, int cellW, int rowY, long dayMs, boolean dimmed) {
             long today = BonyanPlannerFragment.todayMidnight();
-            boolean isSel   = dayMs == selectedDayMs;
+            boolean isSel = dayMs == selectedDayMs;
             boolean isToday = dayMs == today;
-            boolean isPast  = dayMs < today;
+            boolean isPast = dayMs < today;
+
             int cx = col * cellW + cellW / 2;
-            int cy = offsetY + dp(CELL_H_DP) / 2;
+            int cy = rowY + dp(CELL_H_DP) / 2;
             float r = dp(17);
 
+            // Selection indicator
             if (isSel) {
                 selPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
                 rf.set(cx - r, cy - r, cx + r, cy + r);
@@ -929,22 +1018,20 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 canvas.drawOval(rf, todayRing);
             }
 
+            // Day number
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(dayMs);
             int dayNum = c.get(Calendar.DAY_OF_MONTH);
 
-            txtPaint.setTextSize(dp(showNum ? 15 : 15));
+            txtPaint.setTextSize(dp(15));
             txtPaint.setTypeface(isSel || isToday ? AndroidUtilities.bold() : android.graphics.Typeface.DEFAULT);
             txtPaint.setTextAlign(Paint.Align.CENTER);
 
             if (isSel) {
                 txtPaint.setColor(Color.WHITE);
-                txtPaint.setAlpha(255);
             } else if (isToday) {
                 txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
-                txtPaint.setAlpha(255);
             } else if (dimmed) {
-                // Next-month emphasis: slightly brighter than past, slightly dimmer than current
                 boolean isDark = Theme.isCurrentThemeDark();
                 txtPaint.setColor(isDark ? 0xFFCCCCCC : 0xFF555555);
                 txtPaint.setAlpha(isPast ? 100 : 160);
@@ -953,23 +1040,9 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 txtPaint.setAlpha(130);
             } else {
                 txtPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-                txtPaint.setAlpha(255);
             }
 
-            if (!showNum) {
-                // Compact: day-of-week abbrev above, number below
-                String[] dow = {"Su","Mo","Tu","We","Th","Fr","Sa"};
-                int dowIdx = c.get(Calendar.DAY_OF_WEEK) - 1;
-                txtPaint.setTextSize(dp(10));
-                int savedAlpha = txtPaint.getAlpha();
-                txtPaint.setAlpha(isSel ? 255 : 140);
-                canvas.drawText(dow[dowIdx], cx, cy - dp(5), txtPaint);
-                txtPaint.setAlpha(savedAlpha);
-                txtPaint.setTextSize(dp(15));
-                canvas.drawText(String.valueOf(dayNum), cx, cy + dp(9), txtPaint);
-            } else {
-                canvas.drawText(String.valueOf(dayNum), cx, cy + dp(5), txtPaint);
-            }
+            canvas.drawText(String.valueOf(dayNum), cx, cy + dp(5), txtPaint);
 
             // Task dot
             for (Task t : tasks) {
@@ -980,6 +1053,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     break;
                 }
             }
+
+            txtPaint.setAlpha(255);
         }
 
         // Touch
@@ -998,8 +1073,13 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     if (handlePressed) {
                         startHandleRipple();
                     }
-                    // Allow dragging if in compact mode OR dragging on handle
-                    if (expandFraction < 0.99f || dragOnHandle) {
+                    // Allow dragging if:
+                    // - in compact mode (expand/collapse)
+                    // - OR dragging on handle (expand/collapse)
+                    // - OR in expanded mode AND not on handle (for vertical scrolling)
+                    boolean allowDrag = expandFraction < 0.99f || dragOnHandle ||
+                            (expandFraction > 0.5f && !dragOnHandle);
+                    if (allowDrag) {
                         isDragging = true;
                         dragStartY = y;
                         dragStartFraction = expandFraction;
@@ -1019,10 +1099,12 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     if (isHorizontalSwipe) { isDragging = false; return false; }
                     if (!isDragging) return false;
 
-                    if (expandFraction > 0.99f && !dragOnHandle) {
-                        // In full mode, allow vertical scrolling by updating expandScrollY
+                    // In expanded mode (not on handle), allow vertical scrolling
+                    boolean inExpandedScrollArea = expandFraction > 0.5f && !dragOnHandle && downY < handleTop;
+                    if (inExpandedScrollArea) {
+                        // Vertical scrolling in expanded mode
                         float newScroll = dragStartScrollY - (y - dragStartY);
-                        expandScrollY = Math.max(0, newScroll);
+                        expandScrollY = newScroll;
                         invalidate();
                     } else {
                         // Dragging to expand/collapse
@@ -1047,6 +1129,10 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                         handleRippleAlpha = 0f;
                         invalidate();
                     }
+
+                    // Check if we were in expanded scrolling mode
+                    boolean wasScrollingExpanded = isDragging && expandFraction > 0.5f && !dragOnHandle && downY < handleTop;
+
                     if (isDragging && !(expandFraction > 0.99f && !dragOnHandle)) {
                         isDragging = false;
                         float target = expandFraction >= 0.5f ? 1f : 0f;
@@ -1058,14 +1144,23 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                         float rem = Math.abs(target - expandFraction);
                         animateTo(target, Math.max((int)(rem * 280), 80));
                     } else if (!hasMoved && ev.getAction() == MotionEvent.ACTION_UP) {
-                        // Tap — select day or toggle expand if on handle
-                        int w = getWidth(), cellW = w / 7;
-                        long tapped = getTappedDay(x, y, w, cellW);
-                        if (tapped > 0) {
-                            setSelectedDay(tapped, true);
-                            if (dayListener != null) dayListener.onDaySelected(tapped);
+                        // Tap — select day (only if not in expanded scrolling mode)
+                        boolean inExpandedScrollArea = expandFraction > 0.5f && downY < handleTop;
+                        if (!inExpandedScrollArea) {
+                            int w = getWidth(), cellW = w / 7;
+                            long tapped = getTappedDay(x, y, w, cellW);
+                            if (tapped > 0) {
+                                setSelectedDay(tapped, true);
+                                if (dayListener != null) dayListener.onDaySelected(tapped);
+                            }
                         }
                     }
+
+                    // Trigger snap-to-grid scrolling if we were in expanded scrolling mode
+                    if (wasScrollingExpanded && expandFraction > 0.95f) {
+                        snapToNearestRow();
+                    }
+
                     isDragging = false;
                     return true;
             }
@@ -1076,10 +1171,13 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             int col = (int)(x / cellW);
             if (col < 0 || col > 6) return -1;
 
+            int headerH = dp(MONTH_YEAR_H_DP);
+
             if (expandFraction < 0.5f) {
                 // Compact: tap on the week row
                 int stripH = dp(STRIP_H_DP);
-                int rowTop = stripH, rowBot = stripH + dp(CELL_H_DP);
+                int rowTop = headerH + stripH;
+                int rowBot = rowTop + dp(CELL_H_DP);
                 if (y < rowTop || y > rowBot) return -1;
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(weekAnchorDayMs);
@@ -1090,7 +1188,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 return c.getTimeInMillis();
             } else {
                 // Expanded: tap on the grid
-                int gridTop = dp(DOW_H_DP);
+                int dowH = dp(DOW_H_DP);
+                int gridTop = headerH + dowH;
                 int handleTop = getHeight() - dp(HANDLE_H_DP);
                 if (y < gridTop || y >= handleTop) return -1;
                 int row = (int)((y - gridTop + expandScrollY) / dp(CELL_H_DP));
@@ -1140,7 +1239,23 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(weekAnchorDayMs);
             SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
-            compactMonthLabel.setText(sdf.format(c.getTime()));
+            String monthYearText = sdf.format(c.getTime());
+            if (monthYearLabel != null) {
+                monthYearLabel.setText(monthYearText);
+            }
+        }
+
+        private void updateMonthYearLabelFromScroll() {
+            // Calculate which month is most visible based on expandScrollY
+            float scrollY = expandScrollY;
+            int firstVisibleRow = (int)(scrollY / dp(CELL_H_DP));
+            long firstVisibleDay = cellIndexToDay(firstVisibleRow * 7);
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(firstVisibleDay);
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+            if (monthYearLabel != null) {
+                monthYearLabel.setText(sdf.format(c.getTime()));
+            }
         }
 
         private void animateTo(float target, int duration) {
@@ -1167,6 +1282,33 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             a.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
             a.addUpdateListener(u -> { expandScrollY = (float) u.getAnimatedValue(); invalidate(); });
             a.start();
+        }
+
+        private void snapToNearestRow() {
+            float rowHeight = dp(CELL_H_DP);
+            float currentRow = expandScrollY / rowHeight;
+            float nearestRow = Math.round(currentRow);
+
+            float targetY = nearestRow * rowHeight;
+            float distance = Math.abs(targetY - expandScrollY);
+
+            // Calculate duration proportional to distance (max 200ms)
+            int maxDuration = 200;
+            float maxDistance = rowHeight * 3; // 3 rows
+            int duration = (int)Math.min(maxDuration, (distance / maxDistance) * maxDuration);
+            duration = Math.max(duration, 50); // Minimum 50ms
+
+            // Animate with CubicBezierInterpolator.EASE_OUT_QUINT
+            ValueAnimator snapAnim = ValueAnimator.ofFloat(expandScrollY, targetY);
+            snapAnim.setDuration(duration);
+            snapAnim.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
+            snapAnim.addUpdateListener(animation -> {
+                expandScrollY = (float) animation.getAnimatedValue();
+                // Update month-year label based on scroll position
+                updateMonthYearLabelFromScroll();
+                invalidate();
+            });
+            snapAnim.start();
         }
 
     } // end CalendarHeaderView
@@ -1409,4 +1551,4 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
     } // end TaskFormSheet
 
-} // end BonyanPlannerFragment);
+} // end BonyanPlannerFragment
