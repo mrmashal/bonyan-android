@@ -4,8 +4,8 @@
  */
 
 package org.bonyan.ui.planner;
-
-package org.telegram.ui;
+import org.telegram.ui.*;
+import org.bonyan.ui.base.*;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.LocaleController.getString;
