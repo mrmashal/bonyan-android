@@ -803,10 +803,10 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 drawExpanded(canvas, w, cellW);
             } else {
                 // Crossfade
-                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * (1f - expandFraction)));
+                canvas.saveLayerAlpha(0, 0, w, h, (int)(255 * (1f - expandFraction)));
                 drawCompact(canvas, w, cellW);
                 canvas.restore();
-                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * expandFraction));
+                canvas.saveLayerAlpha(0, 0, w, h, (int)(255 * expandFraction));
                 drawExpanded(canvas, w, cellW);
                 canvas.restore();
             }
