@@ -17,7 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import org.bonyan.ui.base.BonyanEntryPointImpl;
+import org.bonyan.ui.BonyanEntryPointImpl;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
 

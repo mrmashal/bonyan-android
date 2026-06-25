@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.bonyan.data.local.BonyanDatabase;
 import org.bonyan.data.local.entity.FamilyRelation;
 import org.bonyan.data.local.entity.Person;
-import org.bonyan.ui.base.BonyanBaseFragment;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.ui.ActionBar.ActionBar;
