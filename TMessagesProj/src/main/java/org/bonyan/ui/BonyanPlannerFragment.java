@@ -3,9 +3,7 @@
  * Planner/Calendar Fragment for scheduling and time management
  */
 
-package org.bonyan.ui.planner;
-import org.telegram.ui.*;
-import org.bonyan.ui.base.*;
+package org.bonyan.ui;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.LocaleController.getString;
@@ -58,6 +56,7 @@ import org.telegram.ui.Components.FragmentFloatingButton;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
+import org.telegram.ui.MainTabsActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,14 +68,13 @@ import java.util.UUID;
 
 public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTabsActivity.TabFragmentDelegate {
 
-    // ── Task model ────────────────────────────────────────────────────────────
-
+    // Task model
     public static class Task {
         public String id;
         public String title;
         public String description;
         public long dateMs;
-        public int priority; // 0=none 1=low 2=med 3=high
+        public int priority;
         public boolean completed;
         public boolean hasReminder;
 
@@ -104,8 +102,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         }
     }
 
-    // ── List items ────────────────────────────────────────────────────────────
-
+    // List items
     private static final int TYPE_DAY_HEADER  = 0;
     private static final int TYPE_TASK        = 1;
     private static final int TYPE_EMPTY_DAY   = 2;
@@ -121,16 +118,14 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             ListItem i = new ListItem(); i.type = TYPE_EMPTY_DAY; i.dayMs = d; return i; }
     }
 
-    // ── State ─────────────────────────────────────────────────────────────────
-
+    // State
     private final List<Task> tasks = new ArrayList<>();
     private final List<ListItem> listItems = new ArrayList<>();
     private long selectedDayMs;
     private boolean calendarExpanded = false;
     private boolean suppressCalendarSync = false;
 
-    // ── Views ─────────────────────────────────────────────────────────────────
-
+    // Views
     private CalendarHeaderView calendarView;
     private RecyclerListView listView;
     private LinearLayoutManager layoutManager;
@@ -138,8 +133,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
     private FragmentFloatingButton floatingButton;
     private TaskFormSheet taskFormSheet;
 
-    // ── Insets ────────────────────────────────────────────────────────────────
-
+    // Insets
     private boolean hasMainTabs;
     private int navigationBarHeight;
     private int additionNavigationBarHeight;
@@ -148,8 +142,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
     private static final String PREFS_NAME = "planner_tasks";
     private static final String PREFS_KEY  = "tasks_json";
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
-
+    // Lifecycle
     public BonyanPlannerFragment() { super(); }
     public BonyanPlannerFragment(Bundle args) { super(); arguments = args; }
 
@@ -173,8 +166,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         updateFabPosition();
     }
 
-    // ── createView ────────────────────────────────────────────────────────────
-
+    // createView
     @Override
     public View createView(Context context) {
         actionBar.setTitle(getString(R.string.PlannerTitle));
@@ -276,8 +268,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
     @Override public boolean canParentTabsSlide(MotionEvent ev, boolean forward) { return true; }
 
-    // ── Task form ─────────────────────────────────────────────────────────────
-
+    // Task form
     private void openTaskForm(Task editTask) {
         if (taskFormSheet != null) return;
         taskFormSheet = new TaskFormSheet(getParentActivity(), editTask, selectedDayMs, resourceProvider) {
@@ -290,8 +281,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         taskFormSheet.show();
     }
 
-    // ── Data ──────────────────────────────────────────────────────────────────
-
+    // Data
     private void addTask(Task task) { tasks.add(task); saveTasks(); rebuildList(); adapter.notifyDataSetChanged(); scrollListToDay(task.dateMs); }
     private void updateTask(Task task) {
         for (int i = 0; i < tasks.size(); i++) if (tasks.get(i).id.equals(task.id)) { tasks.set(i, task); break; }
@@ -303,8 +293,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         int pos = findTaskPosition(task); if (pos >= 0) adapter.notifyItemChanged(pos);
     }
 
-    // ── List building ─────────────────────────────────────────────────────────
-
+    // List building
     private void rebuildList() {
         listItems.clear();
         long today = todayMidnight();
@@ -328,8 +317,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         for (int i = 0; i < listItems.size(); i++) { ListItem it = listItems.get(i); if (it.type == TYPE_TASK && it.task.id.equals(task.id)) return i; } return -1;
     }
 
-    // ── Scroll sync ───────────────────────────────────────────────────────────
-
+    // Scroll sync
     private void scrollListToDay(long dayMs) {
         int pos = findDayHeaderPosition(dayMs);
         if (pos >= 0) {
@@ -355,8 +343,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         }
     }
 
-    // ── Persistence ───────────────────────────────────────────────────────────
-
+    // Persistence
     private void loadTasks() {
         SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(PREFS_KEY, "[]");
@@ -376,8 +363,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         } catch (JSONException e) { FileLog.e(e); }
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────────────
-
+    // Helpers
     static long todayMidnight() { return dayMidnight(System.currentTimeMillis()); }
     static long dayMidnight(long ts) {
         Calendar c = Calendar.getInstance(); c.setTimeInMillis(ts);
@@ -403,8 +389,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         return sdf.format(c.getTime());
     }
 
-    // ── TaskListAdapter ───────────────────────────────────────────────────────
-
+    // TaskListAdapter
     private class TaskListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final Context context;
         TaskListAdapter(Context ctx) { context = ctx; }
@@ -439,8 +424,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         void bind(Task task) { view.bind(task); }
     }
 
-    // ── DayHeaderView ─────────────────────────────────────────────────────────
-
+    // DayHeaderView
     private class DayHeaderView extends FrameLayout {
         private final TextView titleView, countView;
         private long boundDayMs;
@@ -478,8 +462,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         }
     }
 
-    // ── TaskItemView ──────────────────────────────────────────────────────────
-
+    // TaskItemView
     private class TaskItemView extends FrameLayout {
         private final View card, priorityBar;
         private final CheckboxView checkbox;
@@ -545,8 +528,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         }
     }
 
-    // ── CheckboxView ──────────────────────────────────────────────────────────
-
+    // CheckboxView
     private static class CheckboxView extends View {
         private final Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint checkPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -605,8 +587,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         }
     }
 
-    // ── EmptyDayView ──────────────────────────────────────────────────────────
-
+    // EmptyDayView
     private static class EmptyDayView extends FrameLayout {
         EmptyDayView(Context context) {
             super(context);
@@ -621,8 +602,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         void bind(long dayMs) {}
     }
 
-    // ── Task context menu ─────────────────────────────────────────────────────
-
+    // Task context menu
     private void showTaskOptions(Task task, View anchor) {
         org.telegram.ui.Components.ItemOptions.makeOptions(BonyanPlannerFragment.this, anchor)
                 .add(R.drawable.msg_edit, getString(R.string.Edit), () -> openTaskForm(task))
@@ -636,8 +616,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 }).show();
     }
 
-    // ── CalendarHeaderView ────────────────────────────────────────────────────
-
+    // CalendarHeaderView
     interface OnDaySelectedListener  { void onDaySelected(long dayMs); }
     interface OnExpandToggleListener { void onToggle(boolean expanded); }
     interface OnExpandFrameListener  { void onFrame(); }
@@ -773,8 +752,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             }
         }
 
-        // ── Drawing ───────────────────────────────────────────────────────────
-
+        // Drawing
         @Override
         protected void onDraw(Canvas canvas) {
             int w = getWidth(), h = getHeight();
@@ -863,11 +841,11 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private void drawExpanded(Canvas canvas, int w, int cellW) {
             int dowH = dp(DOW_H_DP);
             int handleTop = getHeight() - dp(HANDLE_H_DP);
-            
+
             // Clip to ensure calendar doesn't draw over handle area
             canvas.save();
             canvas.clipRect(0, 0, w, handleTop);
-            
+
             // Day-of-week header row
             String[] dowLabels = {"S","M","T","W","T","F","S"};
             txtPaint.setTextSize(dp(11));
@@ -1004,8 +982,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             }
         }
 
-        // ── Touch ─────────────────────────────────────────────────────────────
-
+        // Touch
         @Override
         public boolean onTouchEvent(MotionEvent ev) {
             float x = ev.getX(), y = ev.getY();
@@ -1121,7 +1098,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             }
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // Helpers
 
         /** Convert an absolute cell index (0 = Sun of week containing Jan 1 of baseYear) to a day. */
         private long cellIndexToDay(int cellIndex) {
@@ -1194,8 +1171,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
     } // end CalendarHeaderView
 
-    // ── TaskFormSheet ─────────────────────────────────────────────────────────
-
+    // TaskFormSheet
     private abstract static class TaskFormSheet extends android.app.Dialog {
         private final Task editTask;
         private final long defaultDayMs;
@@ -1433,4 +1409,4 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
     } // end TaskFormSheet
 
-} // end BonyanPlannerFragment
+} // end BonyanPlannerFragment);

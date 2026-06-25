@@ -6,7 +6,7 @@
  * in the Bonyan app, following the Telegram design guidelines.
  */
 
-package org.bonyan.ui.base;
+package org.bonyan.ui;
 
 import android.animation.ValueAnimator;
 import android.content.Context;

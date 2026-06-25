@@ -6,25 +6,22 @@
  * It implements IBonyanEntryPoint to provide clean separation of concerns.
  */
 
-package org.bonyan.ui.base;
+package org.bonyan.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.View;
 
 import org.bonyan.data.BonyanRegistry;
 import org.bonyan.data.local.BonyanDatabase;
-import org.bonyan.ui.BonyanFragmentContainer;
-import org.bonyan.ui.family.BonyanFamilyFragment;
-import org.bonyan.ui.mission.BonyanMissionListFragment;
-import org.bonyan.ui.planner.BonyanPlannerFragment;
-import org.bonyan.ui.profile.BonyanProfileFragment;
-import android.util.Log;
-
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.UserConfig;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.IBonyanEntryPoint;
+import org.telegram.ui.SettingsActivity;
+import android.util.Log;
 
 /**
  * Bridge Implementation for Bonyan Entry Point.
@@ -55,12 +52,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     // State tracking
     private volatile boolean initialized = false;
     private volatile boolean initializing = false;
-
-    // Cached fragments for reuse
-    private BonyanMissionListFragment missionsFragment;
-    private BonyanPlannerFragment plannerFragment;
-    private BonyanFamilyFragment familyFragment;
-    private BonyanProfileFragment profileFragment;
 
     /**
      * Public constructor for instantiation.
@@ -104,9 +95,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             // Initialize database on background thread
             initializeDatabase(context);
 
-            // Pre-create fragment instances for faster tab switching
-            precreateFragments();
-
             initialized = true;
 
             long duration = System.currentTimeMillis() - startTime;
@@ -142,26 +130,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
     }
 
     /**
-     * Pre-create fragment instances for faster tab switching.
-     */
-    private void precreateFragments() {
-        try {
-            // Create fragment instances (they will be properly initialized when first used)
-            missionsFragment = new BonyanMissionListFragment();
-            plannerFragment = new BonyanPlannerFragment();
-            familyFragment = new BonyanFamilyFragment();
-            profileFragment = new BonyanProfileFragment();
-
-            if (BuildVars.LOGS_ENABLED) {
-                Log.d(TAG, "Fragment instances pre-created");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to pre-create fragments", e);
-            // Non-fatal: fragments will be created on-demand
-        }
-    }
-
-    /**
      * Returns a Bonyan fragment for the specified bottom navigation tab.
      *
      * @param bottomNavTabId One of TAB_MISSIONS, TAB_CALENDAR, TAB_FAMILY, TAB_PROFILE
@@ -174,18 +142,36 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             return null;
         }
 
+        // Check if user is logged in
+        boolean isLoggedIn = UserConfig.getInstance(UserConfig.selectedAccount).isClientActivated();
+
+        Bundle args = new Bundle();
+        args.putBoolean("hasMainTabs", true);
+
         switch (bottomNavTabId) {
             case TAB_MISSIONS:
-                return missionsFragment != null ? missionsFragment : new BonyanMissionListFragment();
+                return new BonyanMissionListFragment(args);
 
             case TAB_PLANNER:
-                return plannerFragment != null ? plannerFragment : new BonyanPlannerFragment();
+                return new BonyanPlannerFragment(args);
 
             case TAB_FAMILY:
-                return familyFragment != null ? familyFragment : new BonyanFamilyFragment();
+                // Show Family tab only when user is logged in, otherwise show Settings
+                if (isLoggedIn) {
+                    return new BonyanFamilyFragment(args);
+                } else {
+                    // Return Telegram's SettingsActivity for non-logged in users
+                    Bundle settingsArgs = new Bundle();
+                    settingsArgs.putBoolean("hasMainTabs", true);
+                    return new SettingsActivity(settingsArgs);
+                }
 
             case TAB_PROFILE:
-                return profileFragment != null ? profileFragment : new BonyanProfileFragment();
+                // Profile tab requires login
+                if (!isLoggedIn) {
+                    return null;
+                }
+                return new BonyanProfileFragment(args);
 
             default:
                 Log.w(TAG, "Unknown tab ID: " + bottomNavTabId);
@@ -207,12 +193,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
 
         if (BuildVars.LOGS_ENABLED) {
             Log.d(TAG, "Tab selected: " + tabId);
-        }
-
-        // Notify the active fragment about tab selection
-        BaseFragment currentFragment = getFragment(tabId);
-        if (currentFragment instanceof BonyanBaseFragment) {
-            ((BonyanBaseFragment) currentFragment).onBottomNavTabSelected(tabId);
         }
     }
 
@@ -238,12 +218,6 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             // Close database connections
             BonyanDatabase.destroyInstance();
 
-            // Clear fragment references
-            missionsFragment = null;
-            plannerFragment = null;
-            familyFragment = null;
-            profileFragment = null;
-
             initialized = false;
             instance = null;
 
@@ -253,5 +227,4 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
             Log.e(TAG, "Error during shutdown", e);
         }
     }
-
 }

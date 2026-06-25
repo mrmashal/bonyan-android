@@ -1,4 +1,4 @@
-package org.bonyan.ui.family;
+package org.bonyan.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;

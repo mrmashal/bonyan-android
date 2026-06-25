@@ -1,4 +1,4 @@
-package org.bonyan.ui.profile;
+package org.bonyan.ui;
 
 import android.content.Context;
 import android.view.Gravity;

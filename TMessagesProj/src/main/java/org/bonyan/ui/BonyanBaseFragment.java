@@ -1,4 +1,4 @@
-package org.bonyan.ui.base;
+package org.bonyan.ui;
 
 import android.content.Context;
 import android.os.Bundle;
