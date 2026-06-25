@@ -663,8 +663,10 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private int baseYear;
 
         private float downX, downY, dragStartY, dragStartScrollY, dragStartFraction;
-        private boolean isDragging, isHorizontalSwipe, hasMoved, dragOnHandle;
+        private boolean isDragging, isHorizontalSwipe, hasMoved, dragOnHandle, handlePressed;
         private int touchSlop;
+        private ValueAnimator handleRippleAnim;
+        private float handleRippleAlpha = 0f;
 
         private final Paint bgPaint   = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint selPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -779,12 +781,47 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             int cellW = w / 7;
             int handleTop = h - dp(HANDLE_H_DP);
 
-            // Background
+            // Background (only up to handle, handle drawn separately)
             bgPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-            canvas.drawRect(0, 0, w, h, bgPaint);
+            canvas.drawRect(0, 0, w, handleTop, bgPaint);
 
-            // Separator line
+            // Calendar content
+            if (expandFraction < 0.01f) {
+                drawCompact(canvas, w, cellW);
+            } else if (expandFraction > 0.99f) {
+                drawExpanded(canvas, w, cellW);
+            } else {
+                // Crossfade
+                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * (1f - expandFraction)));
+                drawCompact(canvas, w, cellW);
+                canvas.restore();
+                canvas.saveLayerAlpha(0, 0, w, handleTop, (int)(255 * expandFraction));
+                drawExpanded(canvas, w, cellW);
+                canvas.restore();
+            }
+
+            // Draw handle bar on top
+            drawHandleBar(canvas, w, h, handleTop);
+        }
+
+        private void drawHandleBar(Canvas canvas, int w, int h, int handleTop) {
+            // Handle background
+            bgPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+            canvas.drawRect(0, handleTop, w, h, bgPaint);
+
+            // Ripple effect when pressed
+            if (handleRippleAlpha > 0) {
+                bgPaint.setColor(Theme.getColor(Theme.key_listSelector));
+                bgPaint.setAlpha((int)(handleRippleAlpha * 255));
+                canvas.drawRect(0, handleTop, w, h, bgPaint);
+                bgPaint.setAlpha(255);
+            }
+
+            // Top separator line
             dimPaint.setColor(Theme.getColor(Theme.key_divider));
+            canvas.drawRect(0, handleTop, w, handleTop + dp(1), dimPaint);
+
+            // Bottom separator line
             canvas.drawRect(0, h - dp(1), w, h, dimPaint);
 
             // Grabber pill
@@ -796,20 +833,17 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             dimPaint.setAlpha(80);
             canvas.drawRoundRect(rf, dp(2), dp(2), dimPaint);
             dimPaint.setAlpha(255);
+        }
 
-            if (expandFraction < 0.01f) {
-                drawCompact(canvas, w, cellW);
-            } else if (expandFraction > 0.99f) {
-                drawExpanded(canvas, w, cellW);
-            } else {
-                // Crossfade
-                canvas.saveLayerAlpha(0, 0, w, h, (int)(255 * (1f - expandFraction)));
-                drawCompact(canvas, w, cellW);
-                canvas.restore();
-                canvas.saveLayerAlpha(0, 0, w, h, (int)(255 * expandFraction));
-                drawExpanded(canvas, w, cellW);
-                canvas.restore();
-            }
+        private void startHandleRipple() {
+            if (handleRippleAnim != null) handleRippleAnim.cancel();
+            handleRippleAnim = ValueAnimator.ofFloat(0.3f, 0f);
+            handleRippleAnim.setDuration(200);
+            handleRippleAnim.addUpdateListener(a -> {
+                handleRippleAlpha = (float) a.getAnimatedValue();
+                invalidate();
+            });
+            handleRippleAnim.start();
         }
 
         private void drawCompact(Canvas canvas, int w, int cellW) {
@@ -828,6 +862,12 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
         private void drawExpanded(Canvas canvas, int w, int cellW) {
             int dowH = dp(DOW_H_DP);
+            int handleTop = getHeight() - dp(HANDLE_H_DP);
+            
+            // Clip to ensure calendar doesn't draw over handle area
+            canvas.save();
+            canvas.clipRect(0, 0, w, handleTop);
+            
             // Day-of-week header row
             String[] dowLabels = {"S","M","T","W","T","F","S"};
             txtPaint.setTextSize(dp(11));
@@ -840,7 +880,6 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             }
             // Infinite month grid — draw rows visible in [dowH, handleTop)
             int gridTop = dowH;
-            int handleTop = getHeight() - dp(HANDLE_H_DP);
             int gridH = handleTop - gridTop;
             // expandScrollY = px from top of the infinite grid to the top of the visible area
             float scrollY = expandScrollY;
@@ -883,6 +922,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     }
                 }
             }
+            canvas.restore();
         }
 
         private void drawCell(Canvas canvas, int col, int cellW, int offsetY,
@@ -977,6 +1017,10 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     downX = x; downY = y;
                     hasMoved = false; isHorizontalSwipe = false;
                     dragOnHandle = y >= handleTop;
+                    handlePressed = dragOnHandle;
+                    if (handlePressed) {
+                        startHandleRipple();
+                    }
                     // Allow dragging if in compact mode OR dragging on handle
                     if (expandFraction < 0.99f || dragOnHandle) {
                         isDragging = true;
@@ -1020,6 +1064,12 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    // Reset handle pressed state
+                    if (handlePressed) {
+                        handlePressed = false;
+                        handleRippleAlpha = 0f;
+                        invalidate();
+                    }
                     if (isDragging && !(expandFraction > 0.99f && !dragOnHandle)) {
                         isDragging = false;
                         float target = expandFraction >= 0.5f ? 1f : 0f;
@@ -1031,7 +1081,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                         float rem = Math.abs(target - expandFraction);
                         animateTo(target, Math.max((int)(rem * 280), 80));
                     } else if (!hasMoved && ev.getAction() == MotionEvent.ACTION_UP) {
-                        // Tap — select day
+                        // Tap — select day or toggle expand if on handle
                         int w = getWidth(), cellW = w / 7;
                         long tapped = getTappedDay(x, y, w, cellW);
                         if (tapped > 0) {
