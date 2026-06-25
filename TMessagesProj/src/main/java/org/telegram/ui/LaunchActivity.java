@@ -8020,7 +8020,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 presentFragment(new ProxyListActivity());
             };
         }
-        actionBarLayout.setTitleOverlayText(title, titleId, action);
+        // actionBarLayout.setTitleOverlayText(title, titleId, action);
     }
 
     public void hideVisibleActionMode() {
