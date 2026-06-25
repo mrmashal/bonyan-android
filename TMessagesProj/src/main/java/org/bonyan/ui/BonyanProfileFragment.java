@@ -384,7 +384,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
     private MessagesController.SavedMusicList savedMusicList;
     private ProfileMusicView musicView;
     private AnimatedStatusView animatedStatusView;
-    private AvatarImageView avatarImage;
+    private ProfileActivity.AvatarImageView avatarImage;
     private View avatarOverlay;
     private AnimatorSet avatarAnimation;
     private RadialProgressView avatarProgressView;
@@ -535,7 +535,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
 
     public ProfileChannelCell.ChannelMessageFetcher profileChannelMessageFetcher;
     public boolean createdBirthdayFetcher;
-    public ProfileBirthdayEffect.BirthdayEffectFetcher birthdayFetcher;
+    public BonyanProfileBirthdayEffect.BirthdayEffectFetcher birthdayFetcher;
 
     private CharSequence currentBio;
 
@@ -849,331 +849,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
         return topicId;
     }
 
-    public static class AvatarImageView extends BackupImageView implements SizeNotifierFrameLayout.IViewWithInvalidateCallback {
-
-        private boolean isPulledDown;
-        private float blurSizeFraction;
-        private float avatarScale;
-        public boolean isMetaballWorking = false;
-        public int roundRadiusCollapse = 0;
-        private int roundRadiusExpand = 0;
-        private int actionsSize = 0;
-        private boolean blurEnabled;
-
-        public final Path clipPath = new Path();
-        private final RectF rect = new RectF();
-        private final Paint placeholderPaint;
-        public boolean drawAvatar = true;
-        public float bounceScale = 1f;
-
-        private float crossfadeProgress;
-        private ImageReceiver animateFromImageReceiver;
-
-        public ImageReceiver foregroundImageReceiver;
-        public float foregroundAlpha;
-        private ImageReceiver.BitmapHolder drawableHolder;
-        public boolean drawForeground = true;
-        float progressToExpand;
-
-        ProfileGalleryView avatarsViewPager;
-        public boolean hasStories;
-        private float progressToInsets = 1f;
-
-        public void setAvatarsViewPager(ProfileGalleryView avatarsViewPager) {
-            this.avatarsViewPager = avatarsViewPager;
-        }
-
-        public void createBlurEffect(int actionsSize) {
-            this.actionsSize = actionsSize;
-            this.blurEnabled = true; // actionsSize > 0;
-        }
-
-        public AvatarImageView(Context context) {
-            super(context);
-            setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            foregroundImageReceiver = new ImageReceiver(this);
-            placeholderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            placeholderPaint.setColor(Color.BLACK);
-        }
-
-        public void setAnimateFromImageReceiver(ImageReceiver imageReceiver) {
-            this.animateFromImageReceiver = imageReceiver;
-        }
-
-        public void setCrossfadeProgress(float crossfadeProgress) {
-            this.crossfadeProgress = crossfadeProgress;
-            invalidate();
-        }
-
-        public static Property<AvatarImageView, Float> CROSSFADE_PROGRESS = new AnimationProperties.FloatProperty<AvatarImageView>("crossfadeProgress") {
-            @Override
-            public void setValue(AvatarImageView object, float value) {
-                object.setCrossfadeProgress(value);
-            }
-
-            @Override
-            public Float get(AvatarImageView object) {
-                return object.crossfadeProgress;
-            }
-        };
-
-        public void setForegroundImage(ImageLocation imageLocation, String imageFilter, Drawable thumb) {
-            foregroundImageReceiver.setImage(imageLocation, imageFilter, thumb, 0, null, null, 0);
-            if (drawableHolder != null) {
-                drawableHolder.release();
-                drawableHolder = null;
-            }
-        }
-
-        public void setForegroundImageDrawable(ImageReceiver.BitmapHolder holder) {
-            if (holder != null) {
-                foregroundImageReceiver.setImageBitmap(holder.drawable);
-            }
-            if (drawableHolder != null) {
-                drawableHolder.release();
-                drawableHolder = null;
-            }
-            drawableHolder = holder;
-        }
-
-        public float getForegroundAlpha() {
-            return foregroundAlpha;
-        }
-
-        public void setForegroundAlpha(float value) {
-            foregroundAlpha = value;
-            invalidate();
-        }
-
-        public void clearForeground() {
-            AnimatedFileDrawable drawable = foregroundImageReceiver.getAnimation();
-            if (drawable != null) {
-                drawable.removeSecondParentView(this);
-            }
-            foregroundImageReceiver.clearImage();
-            if (drawableHolder != null) {
-                drawableHolder.release();
-                drawableHolder = null;
-            }
-            foregroundAlpha = 0f;
-            invalidate();
-        }
-
-        protected void onDetachedFromWindow() {
-            super.onDetachedFromWindow();
-            foregroundImageReceiver.onDetachedFromWindow();
-            if (drawableHolder != null) {
-                drawableHolder.release();
-                drawableHolder = null;
-            }
-        }
-
-        @Override
-        protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-            foregroundImageReceiver.onAttachedToWindow();
-        }
-
-        public int getRoundRadiusForExpand() {
-            if (!blurEnabled) {
-                return getRoundRadius()[0];
-            } else {
-                return roundRadiusExpand;
-            }
-        }
-
-        public void setRoundRadiusForExpand(int value) {
-            if (!blurEnabled) {
-                setRoundRadius(value);
-            } else {
-                roundRadiusExpand = value;
-                setRoundRadius(value);
-            }
-        }
-
-        public void setBlurRadiusProgressForExpand(float value, float avatarScale, boolean isPulledDown) {
-            blurSizeFraction = value;
-            this.avatarScale = avatarScale;
-            this.isPulledDown = isPulledDown;
-        }
-
-        public void setRoundRadiusCollapse(int roundRadiusCollapse) {
-            this.isMetaballWorking = true;
-            int old = this.roundRadiusCollapse;
-            this.roundRadiusCollapse = roundRadiusCollapse;
-            if (old != this.roundRadiusCollapse) {
-                super.invalidate();
-            }
-        }
-
-        @Override
-        public void setRoundRadius(int value) {
-            super.setRoundRadius(value);
-            foregroundImageReceiver.setRoundRadius(value);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            int thisWidth = getMeasuredWidth();
-            int thisHeight = getMeasuredHeight();
-            boolean shouldDrawBlur = avatarsViewPager != null &&
-                    avatarsViewPager.getVisibility() == View.VISIBLE &&
-                    blurEnabled && blurSizeFraction > 0f;
-
-            ProfileGalleryBlurView blurView = null;
-            if (shouldDrawBlur) {
-                blurView = avatarsViewPager.getBlurDrawer();
-                shouldDrawBlur = blurView != null;
-            }
-
-            float inset = hasStories ? (int) AndroidUtilities.dpf2(3.5f) : 0;
-            inset *= (1f - progressToExpand);
-            inset *= progressToInsets * (1f - foregroundAlpha);
-
-            ImageReceiver imageReceiver = animatedEmojiDrawable != null ? animatedEmojiDrawable.getImageReceiver() : this.imageReceiver;
-
-            int r = /*isMetaballWorking && !hasStories ? roundRadiusCollapse : */roundRadiusExpand;
-            if (r > 0) {
-                clipPath.rewind();
-                AndroidUtilities.rectTmp.set(inset, inset, thisWidth - inset, thisHeight - inset);
-                clipPath.addRoundRect(AndroidUtilities.rectTmp, r, r, Path.Direction.CW);
-                canvas.clipPath(clipPath);
-            }
-
-            canvas.save();
-            canvas.scale(bounceScale, bounceScale, thisWidth / 2f, thisHeight / 2f);
-
-            if (shouldDrawBlur) {
-                if (isPulledDown) {
-                    thisHeight = Math.min(thisHeight, thisWidth);
-                } else {
-                    thisHeight = (int) (thisHeight - AndroidUtilities.lerp(0f, actionsSize / avatarScale, blurSizeFraction));
-                }
-            }
-
-            float alpha = 1.0f;
-            if (animateFromImageReceiver != null) {
-                alpha *= 1.0f - crossfadeProgress;
-                if (crossfadeProgress > 0.0f) {
-                    final float fromAlpha = crossfadeProgress;
-                    final float wasImageX = animateFromImageReceiver.getImageX();
-                    final float wasImageY = animateFromImageReceiver.getImageY();
-                    final float wasImageW = animateFromImageReceiver.getImageWidth();
-                    final float wasImageH = animateFromImageReceiver.getImageHeight();
-                    final float wasAlpha = animateFromImageReceiver.getAlpha();
-                    animateFromImageReceiver.setImageCoords(inset, inset, thisWidth - inset * 2f, thisHeight - inset * 2f);
-                    animateFromImageReceiver.setAlpha(fromAlpha);
-                    animateFromImageReceiver.draw(canvas);
-                    animateFromImageReceiver.setImageCoords(wasImageX, wasImageY, wasImageW, wasImageH);
-                    animateFromImageReceiver.setAlpha(wasAlpha);
-                }
-            }
-            if (imageReceiver != null && alpha > 0 && (foregroundAlpha < 1f || !drawForeground)) {
-                imageReceiver.setImageCoords(inset, inset, thisWidth - inset * 2f, thisHeight - inset * 2f);
-                final float wasAlpha = imageReceiver.getAlpha();
-                imageReceiver.setAlpha(wasAlpha * alpha);
-                if (drawAvatar) {
-                    int wasRadius = imageReceiver.getRoundRadius()[0];
-                    if (shouldDrawBlur) {
-                        imageReceiver.setRoundRadius(0);
-                    }
-                    imageReceiver.draw(canvas);
-                    if (shouldDrawBlur) {
-                        imageReceiver.setRoundRadius(wasRadius);
-                    }
-                }
-                imageReceiver.setAlpha(wasAlpha);
-            }
-            if (foregroundAlpha > 0f && drawForeground && alpha > 0) {
-                if (foregroundImageReceiver.getDrawable() != null) {
-                    foregroundImageReceiver.setImageCoords(inset, inset, thisWidth - inset * 2f, thisHeight - inset * 2f);
-                    foregroundImageReceiver.setAlpha(alpha * foregroundAlpha);
-                    foregroundImageReceiver.draw(canvas);
-                } else {
-                    rect.set(0f, 0f, thisWidth, thisHeight);
-                    placeholderPaint.setAlpha((int) (alpha * foregroundAlpha * 255f));
-                    final int radius = foregroundImageReceiver.getRoundRadius()[0];
-                    canvas.drawRoundRect(rect, radius, radius, placeholderPaint);
-                }
-            }
-
-            if (shouldDrawBlur) {
-                canvas.translate(inset, inset + thisHeight);
-                float fraction = !isPulledDown && !blurView.isUsingRenderNode() && avatarsViewPager.getRealPosition() != 0 ? 1f : (1f - blurSizeFraction);
-                blurView.draw(canvas, this, thisWidth - inset * 2f, thisHeight - inset * 2f, true, fraction, alpha);
-            }
-
-            canvas.restore();
-        }
-
-        public void setProgressToStoriesInsets(float progressToInsets) {
-            if (progressToInsets == this.progressToInsets) {
-                return;
-            }
-            this.progressToInsets = progressToInsets;
-            //if (hasStories) {
-            invalidate();
-            //}
-        }
-
-        public void drawForeground(boolean drawForeground) {
-            this.drawForeground = drawForeground;
-        }
-
-        public ChatActivityInterface getPrevFragment() {
-            return null;
-        }
-
-        public void setHasStories(boolean hasStories) {
-            if (this.hasStories == hasStories) {
-                return;
-            }
-            this.hasStories = hasStories;
-            invalidate();
-        }
-
-        public void setProgressToExpand(float animatedFracture) {
-            if (progressToExpand == animatedFracture) {
-                return;
-            }
-            progressToExpand = animatedFracture;
-            invalidate();
-        }
-
-        private Runnable invalidateCallback = null;
-
-        @Override
-        public void listenInvalidate(Runnable callback) {
-            invalidateCallback = callback;
-        }
-
-        @Override
-        public void invalidate() {
-            super.invalidate();
-            if (avatarsViewPager != null) {
-                avatarsViewPager.invalidate();
-            }
-            if (invalidateCallback != null) {
-                invalidateCallback.run();
-            }
-        }
-
-        @Override
-        public void invalidate(Rect dirty) {
-            super.invalidate(dirty);
-            if (invalidateCallback != null) {
-                invalidateCallback.run();
-            }
-        }
-
-        @Override
-        public void invalidate(int l, int t, int r, int b) {
-            super.invalidate(l, t, r, b);
-            if (invalidateCallback != null) {
-                invalidateCallback.run();
-            }
-        }
-    }
+    // use public static class AvatarImageView from the original ProfileActivity
 
     private class TopView extends FrameLayout {
 
@@ -5235,7 +4911,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
         avatarGooey.addView(avatarContainer, LayoutHelper.createFrame(100, 100, Gravity.TOP | Gravity.LEFT, 64, 0, 0, 0));
         avatarContainer2.addView(avatarGooey, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 //        avatarContainer2.addView(avatarContainer, LayoutHelper.createFrame(100, 100, Gravity.TOP | Gravity.LEFT, 64, 0, 0, 0));
-        avatarImage = new AvatarImageView(context) {
+        avatarImage = new ProfileActivity.AvatarImageView(context) {
             @Override
             public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
                 super.onInitializeAccessibilityNodeInfo(info);
@@ -9133,8 +8809,8 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
                     profileChannelMessageFetcher.fetch(userInfo);
                 }
                 if (!isSettings()) {
-                    ProfileBirthdayEffect.BirthdayEffectFetcher oldFetcher = birthdayFetcher;
-                    birthdayFetcher = ProfileBirthdayEffect.BirthdayEffectFetcher.of(currentAccount, userInfo, birthdayFetcher);
+                    BonyanProfileBirthdayEffect.BirthdayEffectFetcher oldFetcher = birthdayFetcher;
+                    birthdayFetcher = BonyanProfileBirthdayEffect.BirthdayEffectFetcher.of(currentAccount, userInfo, birthdayFetcher);
                     createdBirthdayFetcher = birthdayFetcher != oldFetcher;
                     if (birthdayFetcher != null) {
                         birthdayFetcher.subscribe(this::createBirthdayEffect);
@@ -9889,7 +9565,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
                 }
                 if (avatarImage != null) {
                     avatarImage.setCrossfadeProgress(1.0f);
-                    animators.add(ObjectAnimator.ofFloat(avatarImage, AvatarImageView.CROSSFADE_PROGRESS, 0.0f));
+                    animators.add(ObjectAnimator.ofFloat(avatarImage, ProfileActivity.AvatarImageView.CROSSFADE_PROGRESS, 0.0f));
                 }
 
                 boolean onlineTextCrosafade = false;
@@ -9974,7 +9650,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
                     animators.add(ObjectAnimator.ofFloat(ttlIconView, View.ALPHA, ttlIconView.getAlpha(), 0.0f));
                 }
                 if (avatarImage != null) {
-                    animators.add(ObjectAnimator.ofFloat(avatarImage, AvatarImageView.CROSSFADE_PROGRESS, 1.0f));
+                    animators.add(ObjectAnimator.ofFloat(avatarImage, ProfileActivity.AvatarImageView.CROSSFADE_PROGRESS, 1.0f));
                 }
 
                 boolean crossfadeOnlineText = false;
@@ -10158,7 +9834,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
     public void setUserInfo(
             TLRPC.UserFull value,
             ProfileChannelCell.ChannelMessageFetcher channelMessageFetcher,
-            ProfileBirthdayEffect.BirthdayEffectFetcher birthdayAssetsFetcher
+            BonyanProfileBirthdayEffect.BirthdayEffectFetcher birthdayAssetsFetcher
     ) {
         userInfo = value;
         if (ratingView != null) {
@@ -10188,7 +9864,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
             birthdayFetcher = birthdayAssetsFetcher;
         }
         if (birthdayFetcher == null) {
-            birthdayFetcher = ProfileBirthdayEffect.BirthdayEffectFetcher.of(currentAccount, userInfo, birthdayFetcher);
+            birthdayFetcher = BonyanProfileBirthdayEffect.BirthdayEffectFetcher.of(currentAccount, userInfo, birthdayFetcher);
             createdBirthdayFetcher = birthdayFetcher != null;
         }
         if (birthdayFetcher != null) {
@@ -15919,7 +15595,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
         });
     }
 
-    private ProfileBirthdayEffect birthdayEffect;
+    private BonyanProfileBirthdayEffect birthdayEffect;
 
     private void createBirthdayEffect() {
         if (fragmentView == null || !fullyVisible || birthdayFetcher == null || getContext() == null)
@@ -15931,7 +15607,7 @@ public class BonyanProfileFragment extends BonyanBaseFragment implements Notific
             return;
         }
 
-        birthdayEffect = new ProfileBirthdayEffect(this, birthdayFetcher);
+        birthdayEffect = new BonyanProfileBirthdayEffect(this, birthdayFetcher);
         ((FrameLayout) fragmentView).addView(birthdayEffect, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.FILL_HORIZONTAL | Gravity.TOP));
     }
 
