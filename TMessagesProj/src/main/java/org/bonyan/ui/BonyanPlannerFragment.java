@@ -653,7 +653,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private int touchSlop;
         private ValueAnimator handleRippleAnim;
         private float handleRippleAlpha = 0f;
-        
+
         // Fling tracking
         private android.view.VelocityTracker velocityTracker;
         private android.widget.Scroller flingScroller;
@@ -676,7 +676,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             setWillNotDraw(false);
             setClipChildren(false);
             touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-            
+
             // Initialize fling utilities
             velocityTracker = android.view.VelocityTracker.obtain();
             flingScroller = new android.widget.Scroller(context, null, true);
@@ -838,7 +838,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             });
             handleRippleAnim.start();
         }
-        
+
         @Override
         public void computeScroll() {
             // Handle fling animation
@@ -846,7 +846,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 expandScrollY = flingScroller.getCurrY();
                 updateMonthYearLabelFromScroll();
                 invalidate();
-                
+
                 // If fling animation finished, snap to nearest row
                 if (flingScroller.isFinished()) {
                     snapToNearestRowWithFling(0);
@@ -858,30 +858,29 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             // Determine visibility and positions based on expandFraction
             // In compact mode: show 1 week row at STRIP_H_DP + MONTH_YEAR_H_DP offset
             // In expanded mode: show 6 week rows + DOW header
-            
+
             // Draw day-of-week header (visible in both modes)
             // Always show day-of-week header in both compact and expanded views
             float dowAlpha = 1.0f; // Always fully visible
             // Draw day-of-week labels
             String[] dowLabels = LocaleController.isRTL ?
-                    new String[]{"S","F","T","W","T","M","S"} : // RTL: Sun to Sat reversed
-                    new String[]{"S","M","T","W","T","F","S"};
-                txtPaint.setTextSize(dp(11));
-                txtPaint.setTypeface(AndroidUtilities.bold());
-                txtPaint.setTextAlign(Paint.Align.CENTER);
-                int dowColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2);
-                int alpha = (int)(dowAlpha * 255);
-                txtPaint.setColor(dowColor);
-                txtPaint.setAlpha(alpha);
-                int dowH = dp(DOW_H_DP);
-                int dowY = headerH + dowH / 2 + dp(4);
-                for (int col = 0; col < 7; col++) {
-                    int labelCol = LocaleController.isRTL ? 6 - col : col;
-                    int cx = col * cellW + cellW / 2;
-                    canvas.drawText(dowLabels[labelCol], cx, dowY, txtPaint);
-                }
-                txtPaint.setAlpha(255);
+                new String[]{"S","F","T","W","T","M","S"} : // RTL: Sun to Sat reversed
+                new String[]{"S","M","T","W","T","F","S"};
+            txtPaint.setTextSize(dp(11));
+            txtPaint.setTypeface(AndroidUtilities.bold());
+            txtPaint.setTextAlign(Paint.Align.CENTER);
+            int dowColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2);
+            int alpha = (int)(dowAlpha * 255);
+            txtPaint.setColor(dowColor);
+            txtPaint.setAlpha(alpha);
+            int dowH = dp(DOW_H_DP);
+            int dowY = headerH + dowH / 2 + dp(4);
+            for (int col = 0; col < 7; col++) {
+                int labelCol = LocaleController.isRTL ? 6 - col : col;
+                int cx = col * cellW + cellW / 2;
+                canvas.drawText(dowLabels[labelCol], cx, dowY, txtPaint);
             }
+            txtPaint.setAlpha(255);
 
             // Now draw the calendar grid
             // We always draw the grid cells, but with different transforms based on mode
@@ -1139,7 +1138,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     }
                     if (isHorizontalSwipe) { isDragging = false; return false; }
                     if (!isDragging) return false;
-                    
+
                     // Track velocity for fling detection
                     if (velocityTracker != null) {
                         velocityTracker.addMovement(ev);
@@ -1177,14 +1176,14 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                         handleRippleAlpha = 0f;
                         invalidate();
                     }
-                    
+
                     // Check if we were in expanded scrolling mode
                     boolean wasScrollingExpanded = isDragging && expandFraction > 0.5f && !dragOnHandle && downY < handleTop;
-                    
+
                     // Handle tap on handle to toggle between compact and expanded
-                    boolean tappedOnHandle = !hasMoved && ev.getAction() == MotionEvent.ACTION_UP && 
+                    boolean tappedOnHandle = !hasMoved && ev.getAction() == MotionEvent.ACTION_UP &&
                                            dragOnHandle && !isDragging;
-                    
+
                     if (tappedOnHandle) {
                         // Toggle between compact and expanded
                         float target = expandFraction >= 0.5f ? 0f : 1f;
@@ -1213,7 +1212,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                             if (dayListener != null) dayListener.onDaySelected(tapped);
                         }
                     }
-                    
+
                     // Trigger snap-to-grid scrolling if we were in expanded scrolling mode
                     if (wasScrollingExpanded && expandFraction > 0.95f) {
                         // Calculate fling velocity for snap-to-grid
@@ -1225,7 +1224,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                             snapToNearestRowWithFling(0);
                         }
                     }
-                    
+
                     isDragging = false;
                     return true;
             }
@@ -1357,11 +1356,11 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private void snapToNearestRow() {
             snapToNearestRowWithFling(0);
         }
-        
+
         private void snapToNearestRowWithFling(float velocityY) {
             float rowHeight = dp(CELL_H_DP);
             float currentRow = expandScrollY / rowHeight;
-            
+
             // Calculate target row based on velocity and position
             int targetRow;
             if (Math.abs(velocityY) > FLING_MIN_VELOCITY) {
@@ -1375,19 +1374,19 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 // No significant velocity: snap to nearest
                 targetRow = Math.round(currentRow);
             }
-            
+
             // Clamp target to valid range
             targetRow = Math.max(0, targetRow);
-            
+
             float targetY = targetRow * rowHeight;
             float distance = Math.abs(targetY - expandScrollY);
-            
+
             // Calculate duration based on distance and velocity (max 400ms for fling)
             int maxDuration = Math.abs(velocityY) > FLING_MIN_VELOCITY ? 400 : 250;
             float maxDistance = rowHeight * 6; // 6 rows max
             int duration = (int)Math.min(maxDuration, (distance / maxDistance) * maxDuration);
             duration = Math.max(duration, 100); // Minimum 100ms
-            
+
             // Animate with CubicBezierInterpolator.EASE_OUT_QUINT
             ValueAnimator snapAnim = ValueAnimator.ofFloat(expandScrollY, targetY);
             snapAnim.setDuration(duration);
