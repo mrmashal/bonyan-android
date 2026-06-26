@@ -7,6 +7,7 @@
  */
 
 package org.bonyan.ui;
+import org.telegram.ui.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -145,23 +146,22 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
         // Check if user is logged in
         boolean isLoggedIn = UserConfig.getInstance(UserConfig.selectedAccount).isClientActivated();
 
+        Bundle args;
         switch (bottomNavTabId) {
             case TAB_MISSIONS:
-                Bundle args = new Bundle();
+                args = new Bundle();
                 args.putBoolean("hasMainTabs", true);
-                bonyanMissionListFragment = new BonyanMissionListFragment(args);
-                bonyanMissionListFragment.setMainTabsActivityController(new MainTabsActivityControllerImpl());
-                return bonyanMissionListFragment;
+                return new BonyanMissionListFragment(args); // Controller will be set by MainTabsActivity after fragment creation
 
             case TAB_PLANNER:
-                Bundle args = new Bundle();
+                args = new Bundle();
                 args.putBoolean("hasMainTabs", true);
                 return new BonyanPlannerFragment(args);
 
             case TAB_FAMILY:
                 // Show Family tab only when user is logged in, otherwise show Settings
                 if (isLoggedIn) {
-                    Bundle args = new Bundle();
+                    args = new Bundle();
                     args.putBoolean("needPhonebook", true);
                     args.putBoolean("needFinishFragment", false);
                     args.putBoolean("hasMainTabs", true);
@@ -178,8 +178,8 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
                 if (!isLoggedIn) {
                     return null;
                 }
-                Bundle args = new Bundle();
-                args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
+                args = new Bundle();
+                args.putLong("user_id", UserConfig.getInstance(UserConfig.selectedAccount).getClientUserId());
                 args.putBoolean("my_profile", true);
                 // args.putBoolean("expandPhoto", true);
                 args.putBoolean("hasMainTabs", true);

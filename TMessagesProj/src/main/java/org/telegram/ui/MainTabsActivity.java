@@ -561,9 +561,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         IBonyanEntryPoint bonyan = BonyanRegistry.get();
         if (bonyan != null && bonyan.isInitialized()) {
             BaseFragment bonyanFragment = bonyan.getFragment(position);
-            if (bonyanFragment != null) {
-                return bonyanFragment;
-            }
+            return bonyanFragment;
         }
 
         // Fallback to default Telegram fragments if Bonyan is not available
@@ -590,10 +588,6 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             dialogsActivity.setMainTabsActivityController(new MainTabsActivityControllerImpl());
             return dialogsActivity;
         } else if (position == POSITION_PROFILE) {
-            // Bonyan: Check login before creating Profile fragment
-            if (!UserConfig.getInstance(currentAccount).isClientActivated()) {
-                return null;
-            }
             Bundle args = new Bundle();
             args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
             args.putBoolean("my_profile", true);
