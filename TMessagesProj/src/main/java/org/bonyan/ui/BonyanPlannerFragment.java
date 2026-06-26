@@ -744,8 +744,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         int computeHeight() {
             int headerH = dp(MONTH_YEAR_H_DP); // Month-year header visible in both modes
             int dowH = dp(DOW_H_DP); // Day-of-week header now always visible in both modes
-            // Compact: header + DOW header + strip (for month label) + 1 cell row + handle
-            int compactH = headerH + dowH + dp(STRIP_H_DP) + dp(CELL_H_DP) + dp(HANDLE_H_DP);
+            // Compact: header + DOW header + 1 cell row + handle (no extra strip)
+            int compactH = headerH + dowH + dp(CELL_H_DP) + dp(HANDLE_H_DP);
             // Expanded: header + DOW header + 6 cell rows + handle
             int expandedH = headerH + dowH + dp(CELL_H_DP) * 6 + dp(HANDLE_H_DP);
             return (int)(compactH + (expandedH - compactH) * expandFraction);
@@ -765,16 +765,24 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             returnTodayBtn.setAlpha(ca);
             monthYearLabel.setAlpha(1f); // Month-year label always visible
 
-            int stripH = dp(STRIP_H_DP);
             int headerH = dp(MONTH_YEAR_H_DP);
+            int dowH = dp(DOW_H_DP);
             int myW = monthYearLabel.getMeasuredWidth();
 
+            // Position month-year label at top
+            int labelTop = headerH / 2;
             if (LocaleController.isRTL) {
-                returnTodayBtn.layout(dp(8), 0, dp(40), stripH);
-                monthYearLabel.layout(w - dp(16) - myW, headerH / 2, w - dp(16), headerH / 2 + dp(16));
+                monthYearLabel.layout(w - dp(16) - myW, labelTop, w - dp(16), labelTop + dp(16));
             } else {
-                returnTodayBtn.layout(w - dp(40), 0, w - dp(8), stripH);
-                monthYearLabel.layout(dp(16), headerH / 2, dp(16) + myW, headerH / 2 + dp(16));
+                monthYearLabel.layout(dp(16), labelTop, dp(16) + myW, labelTop + dp(16));
+            }
+
+            // Position return-to-today button below DOW header (where the week row starts)
+            int btnTop = headerH + dowH + dp(CELL_H_DP) / 2 - dp(16); // Centered in week row
+            if (LocaleController.isRTL) {
+                returnTodayBtn.layout(dp(8), btnTop, dp(40), btnTop + dp(32));
+            } else {
+                returnTodayBtn.layout(w - dp(40), btnTop, w - dp(8), btnTop + dp(32));
             }
         }
 
@@ -846,13 +854,31 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                 expandScrollY = flingScroller.getCurrY();
                 updateMonthYearLabelFromScroll();
                 invalidate();
+            }
+        }
 
-                // If fling animation finished, snap to nearest row
-                if (flingScroller.isFinished()) {
+        private final Runnable flingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (flingScroller.computeScrollOffset()) {
+                    expandScrollY = flingScroller.getCurrY();
+                    updateMonthYearLabelFromScroll();
+                    invalidate();
+
+                    if (!flingScroller.isFinished()) {
+                        postOnAnimation(this);
+                    } else {
+                        // Fling animation finished, snap to nearest row
+                        snapToNearestRowWithFling(0);
+                    }
+                } else if (!flingScroller.isFinished()) {
+                    postOnAnimation(this);
+                } else {
+                    // Fling animation finished, snap to nearest row
                     snapToNearestRowWithFling(0);
                 }
             }
-        }
+        };
 
         private void drawUnifiedCalendar(Canvas canvas, int w, int cellW, int handleTop, int headerH) {
             // Determine visibility and positions based on expandFraction
@@ -898,7 +924,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
         private void drawCompactWeek(Canvas canvas, int w, int cellW, int headerH, float fraction) {
             int dowH = dp(DOW_H_DP); // Day-of-week header height (now always visible)
             int rowH = dp(CELL_H_DP);
-            // Position the row below the header + DOW header
+            // Position the row below the header + DOW header (no extra strip)
             int offsetY = headerH + dowH;
 
             // Calculate week anchor (find Sunday of the week containing weekAnchorDayMs)
@@ -1125,6 +1151,7 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                         if (expandAnim != null) expandAnim.cancel();
                         // Cancel any ongoing fling
                         flingScroller.abortAnimation();
+                        removeCallbacks(flingRunnable);
                     } else {
                         isDragging = false;
                     }
@@ -1181,8 +1208,9 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
                     boolean wasScrollingExpanded = isDragging && expandFraction > 0.5f && !dragOnHandle && downY < handleTop;
 
                     // Handle tap on handle to toggle between compact and expanded
+                    // Note: isDragging is expected to be true here since we started dragging on ACTION_DOWN
                     boolean tappedOnHandle = !hasMoved && ev.getAction() == MotionEvent.ACTION_UP &&
-                                           dragOnHandle && !isDragging;
+                                           dragOnHandle;
 
                     if (tappedOnHandle) {
                         // Toggle between compact and expanded
@@ -1245,8 +1273,8 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
 
             if (expandFraction < 0.5f) {
                 // Compact: tap on the week row
-                int stripH = dp(STRIP_H_DP);
-                int rowTop = headerH + stripH;
+                // Note: row starts right after DOW header (no extra strip since we removed it from height)
+                int rowTop = headerH + dp(DOW_H_DP);
                 int rowBot = rowTop + dp(CELL_H_DP);
                 if (y < rowTop || y > rowBot) return -1;
                 Calendar c = Calendar.getInstance();
@@ -1361,28 +1389,29 @@ public class BonyanPlannerFragment extends BonyanBaseFragment implements MainTab
             float rowHeight = dp(CELL_H_DP);
             float currentRow = expandScrollY / rowHeight;
 
-            // Calculate target row based on velocity and position
-            int targetRow;
+            // For significant fling velocity, use the flingScroller for momentum scrolling
             if (Math.abs(velocityY) > FLING_MIN_VELOCITY) {
-                // Fling: determine direction and calculate target with momentum
-                int velocityDirection = velocityY < 0 ? -1 : 1; // Negative velocity = scrolling up
-                // Fling 2-4 rows based on velocity
-                float velocityFactor = Math.min(Math.abs(velocityY) / FLING_MAX_VELOCITY, 1.0f);
-                int flingRows = (int) (1 + velocityFactor * 3); // 1-4 rows
-                targetRow = (int) currentRow + (velocityDirection * flingRows);
-            } else {
-                // No significant velocity: snap to nearest
-                targetRow = Math.round(currentRow);
+                int minY = 0;
+                int maxY = Integer.MAX_VALUE;
+                // Start the fling with momentum - negative velocity means scrolling up
+                // velocityY is positive when finger moves down (scrolling down)
+                // flingScroller expects negative velocityY to scroll down (decreasing Y)
+                flingScroller.fling(0, (int) expandScrollY, 0, (int) -velocityY, 0, 0, minY, maxY);
+                // Start the fling animation loop
+                removeCallbacks(flingRunnable);
+                postOnAnimation(flingRunnable);
+                return;
             }
 
-            // Clamp target to valid range
+            // No significant velocity: snap to nearest row using ValueAnimator
+            int targetRow = Math.round(currentRow);
             targetRow = Math.max(0, targetRow);
 
             float targetY = targetRow * rowHeight;
             float distance = Math.abs(targetY - expandScrollY);
 
-            // Calculate duration based on distance and velocity (max 400ms for fling)
-            int maxDuration = Math.abs(velocityY) > FLING_MIN_VELOCITY ? 400 : 250;
+            // Calculate duration based on distance (max 250ms for snap)
+            int maxDuration = 250;
             float maxDistance = rowHeight * 6; // 6 rows max
             int duration = (int)Math.min(maxDuration, (distance / maxDistance) * maxDuration);
             duration = Math.max(duration, 100); // Minimum 100ms
