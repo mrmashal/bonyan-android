@@ -145,19 +145,26 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
         // Check if user is logged in
         boolean isLoggedIn = UserConfig.getInstance(UserConfig.selectedAccount).isClientActivated();
 
-        Bundle args = new Bundle();
-        args.putBoolean("hasMainTabs", true);
-
         switch (bottomNavTabId) {
             case TAB_MISSIONS:
-                return new BonyanMissionListFragment(args);
+                Bundle args = new Bundle();
+                args.putBoolean("hasMainTabs", true);
+                bonyanMissionListFragment = new BonyanMissionListFragment(args);
+                bonyanMissionListFragment.setMainTabsActivityController(new MainTabsActivityControllerImpl());
+                return bonyanMissionListFragment;
 
             case TAB_PLANNER:
+                Bundle args = new Bundle();
+                args.putBoolean("hasMainTabs", true);
                 return new BonyanPlannerFragment(args);
 
             case TAB_FAMILY:
                 // Show Family tab only when user is logged in, otherwise show Settings
                 if (isLoggedIn) {
+                    Bundle args = new Bundle();
+                    args.putBoolean("needPhonebook", true);
+                    args.putBoolean("needFinishFragment", false);
+                    args.putBoolean("hasMainTabs", true);
                     return new BonyanFamilyFragment(args);
                 } else {
                     // Return Telegram's SettingsActivity for non-logged in users
@@ -171,6 +178,11 @@ public class BonyanEntryPointImpl implements IBonyanEntryPoint {
                 if (!isLoggedIn) {
                     return null;
                 }
+                Bundle args = new Bundle();
+                args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
+                args.putBoolean("my_profile", true);
+                // args.putBoolean("expandPhoto", true);
+                args.putBoolean("hasMainTabs", true);
                 return new BonyanProfileFragment(args);
 
             default:

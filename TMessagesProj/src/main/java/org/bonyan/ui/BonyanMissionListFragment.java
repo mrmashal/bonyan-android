@@ -1,4 +1,5 @@
 package org.bonyan.ui;
+import org.telegram.ui.*;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -23,6 +24,12 @@ import org.telegram.ui.Components.LayoutHelper;
  * to show actual mission data from the local database.
  */
 public class BonyanMissionListFragment extends BonyanBaseFragment {
+
+    private MainTabsActivityController mainTabsActivityController;
+
+    public void setMainTabsActivityController(MainTabsActivityController controller) {
+        mainTabsActivityController = controller;
+    }
 
     private TextView placeholderText;
 
