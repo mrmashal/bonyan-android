@@ -1,8 +1,6 @@
 package org.bonyan.ui;
-import org.telegram.ui.*;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
-import static org.telegram.messenger.AndroidUtilities.lerp;
 import static org.telegram.messenger.LocaleController.getString;
 
 import android.Manifest;
@@ -14,27 +12,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -49,6 +38,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.bonyan.data.local.BonyanDatabase;
+import org.bonyan.data.local.dao.PersonDao;
+import org.bonyan.data.local.dao.FamilyRelationDao;
+import org.bonyan.data.local.entity.Person;
+import org.bonyan.data.local.entity.FamilyRelation;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildVars;
@@ -58,7 +52,6 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SecretChatHelper;
@@ -66,7 +59,6 @@ import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.utils.SearchTextWatcher;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
@@ -76,24 +68,15 @@ import org.telegram.ui.ActionBar.BackDrawable;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
-import org.telegram.ui.Adapters.ContactsAdapter;
-import org.telegram.ui.Adapters.SearchAdapter;
 import org.telegram.ui.Cells.GraySectionCell;
 import org.telegram.ui.Cells.LetterSectionCell;
-import org.telegram.ui.Cells.ProfileSearchCell;
-import org.telegram.ui.Cells.TextCell;
 import org.telegram.ui.Cells.UserCell;
-import org.telegram.ui.Components.AlertsCreator;
 import org.telegram.ui.Components.Bulletin;
-import org.telegram.ui.Components.BulletinFactory;
-import org.telegram.ui.Components.ContactsEmptyView;
 import org.telegram.ui.Components.CubicBezierInterpolator;
-import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.FlickerLoadingView;
 import org.telegram.ui.Components.FragmentFloatingButton;
 import org.telegram.ui.Components.FragmentSearchField;
 import org.telegram.ui.Components.LayoutHelper;
-import org.telegram.ui.Components.NumberTextView;
 import org.telegram.ui.Components.RecyclerAnimationScrollHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
@@ -105,12 +88,29 @@ import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceRenderNode
 import org.telegram.ui.Components.inset.WindowAnimatedInsetsProvider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
 
 public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAnimator.Target, NotificationCenter.NotificationCenterDelegate, MainTabsActivity.TabFragmentDelegate, WindowAnimatedInsetsProvider.Listener {
     private final int ADDITIONAL_LIST_HEIGHT_DP = Build.VERSION.SDK_INT >= 31 ? 48 : 0;
+
+    // Bonyan Family specific
+    private BonyanFamilyListAdapter familyListAdapter;
+    private PersonDao personDao;
+    private FamilyRelationDao familyRelationDao;
+    private List<Person> personList = new ArrayList<>();
+    private Map<String, String> relationMap = new HashMap<>();
+
+    // UI Components
+    private FragmentFloatingButton familyFab;
+    private ActionBarMenuItem filterItem;
+    private StickerEmptyView familyEmptyView;
+
+    private static final int filter_button = 2;
 
     private static final int ANIMATOR_ID_SEARCH_FIELD_VISIBLE = 0;
 //    private static final int ANIMATOR_ID_SEARCH_FIELD_HEIGHT = 1;
@@ -215,6 +215,16 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.encryptedChatCreated);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.closeChats);
+
+        // Initialize Bonyan database
+        try {
+            BonyanDatabase db = BonyanDatabase.getInstance();
+            personDao = db.personDao();
+            familyRelationDao = db.familyRelationDao();
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+
         checkPermission = UserConfig.getInstance(currentAccount).syncContacts;
         if (arguments != null) {
             onlyUsers = arguments.getBoolean("onlyUsers", false);
@@ -247,7 +257,56 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         additionNavigationBarHeight = hasMainTabs ? dp(DialogsActivity.MAIN_TABS_HEIGHT_WITH_MARGINS) : 0;
         additionFloatingButtonOffset = hasMainTabs ? dp(DialogsActivity.MAIN_TABS_HEIGHT + DialogsActivity.MAIN_TABS_MARGIN) : 0;
 
+        // Load family data from local database
+        loadFamilyData();
+
         return true;
+    }
+
+    private void loadFamilyData() {
+        if (personDao == null) return;
+
+        new Thread(() -> {
+            try {
+                // Get all persons except logged in user
+                List<Person> persons = personDao.getAllExceptLoggedIn();
+                if (persons == null) {
+                    persons = new ArrayList<>();
+                }
+
+                // Get relations for the current user
+                Person loggedInUser = personDao.getLoggedInUser();
+                if (loggedInUser != null) {
+                    List<FamilyRelation> relations = familyRelationDao.getByPersonAId(loggedInUser.getId());
+                    for (FamilyRelation relation : relations) {
+                        relationMap.put(relation.getPersonBId(), relation.getRelationType());
+                    }
+                }
+
+                final List<Person> finalPersons = persons;
+                AndroidUtilities.runOnUIThread(() -> {
+                    personList.clear();
+                    personList.addAll(finalPersons);
+                    if (familyListAdapter != null) {
+                        familyListAdapter.setData(finalPersons);
+                        familyListAdapter.setRelationMap(relationMap);
+                    }
+                    updateEmptyView();
+                });
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+        }).start();
+    }
+
+    private void updateEmptyView() {
+        if (familyEmptyView == null) return;
+
+        boolean isEmpty = personList.isEmpty();
+        familyEmptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        if (listView != null) {
+            listView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
     }
 
     @Override
@@ -343,8 +402,16 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
 
         ActionBarMenu menu = actionBar.createMenu();
 
+        // Filter/Settings button for Bonyan Family
+        filterItem = menu.addItem(filter_button, R.drawable.msg_settings);
+        filterItem.setContentDescription(getString(R.string.Bonyan_FilterAndSort));
+        filterItem.setOnClickListener(v -> showFilterSheet());
+
         searchItem = menu.addItem(search_button, R.drawable.outline_header_search);
-        searchItem.setContentDescription(getString(R.string.SearchContacts));
+        searchItem.setContentDescription(getString(R.string.Bonyan_SearchFamily));
+
+        // Update title to Family
+        actionBar.setTitle(getString(R.string.Bonyan_FamilyTitle));
 
         searchField.editText.addTextChangedListener(new SearchTextWatcher(searchField.editText, new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
             @Override
@@ -400,8 +467,25 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
             sortItem.setContentDescription(getString(R.string.AccDescrContactSorting));
         }
 
+        // Setup Bonyan Family List Adapter
+        familyListAdapter = new BonyanFamilyListAdapter(context);
+        familyListAdapter.setOnPersonClickListener((person, position) -> {
+            // Navigate to person detail
+            if (person != null) {
+                Bundle args = new Bundle();
+                args.putString("person_id", person.getId());
+                presentFragment(new BonyanPersonDetailFragment(args));
+            }
+        });
+        familyListAdapter.setOnPersonLongClickListener((person, position) -> {
+            // TODO: Implement long click actions (edit, delete, etc.)
+            return true;
+        });
+
         listView = new RecyclerListView(context);
-        searchListViewAdapter = new SearchAdapter(listView, context, ignoreUsers, selectedContacts, allowUsernameSearch, false, false, allowBots, allowSelf, true, 0, resourceProvider) {
+
+        // Keep original adapters for compatibility but use family adapter for Bonyan
+        searchListViewAdapter = new org.telegram.ui.Adapters.SearchAdapter(listView, context, ignoreUsers, selectedContacts, allowUsernameSearch, false, false, allowBots, allowSelf, true, 0, resourceProvider) {
             @Override
             protected void onSearchProgressChanged() {
                 if (!searchInProgress() && getItemCount() == 0) {
@@ -420,7 +504,7 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         } else {
             inviteViaLink = 0;
         }
-        listViewAdapter = new ContactsAdapter(context, this, onlyUsers ? 1 : 0, needPhonebook, ignoreUsers, selectedContacts, inviteViaLink) {
+        listViewAdapter = new org.telegram.ui.Adapters.ContactsAdapter(context, this, onlyUsers ? 1 : 0, needPhonebook, ignoreUsers, selectedContacts, inviteViaLink) {
             @Override
             public void notifyDataSetChanged() {
                 super.notifyDataSetChanged();
@@ -533,13 +617,22 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         flickerLoadingView.setViewType(FlickerLoadingView.PROFILE_SEARCH_CELL);
         flickerLoadingView.showDate(false);
 
+        // Bonyan Family Empty View
+        familyEmptyView = new StickerEmptyView(context, flickerLoadingView, StickerEmptyView.STICKER_TYPE_SEARCH);
+        familyEmptyView.addView(flickerLoadingView, 0);
+        familyEmptyView.setAnimateLayoutChange(true);
+        familyEmptyView.showProgress(false, false);
+        familyEmptyView.title.setText(getString(R.string.Bonyan_NoFamilyMembers));
+        familyEmptyView.subtitle.setText(getString(R.string.Bonyan_NoFamilyMembersDesc));
+        contentView.addView(familyEmptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.FILL, 12, 52 + 12, 12, 0));
+
+        // Original empty view (keep for compatibility)
         emptyView = new StickerEmptyView(context, flickerLoadingView, StickerEmptyView.STICKER_TYPE_SEARCH);
         emptyView.addView(flickerLoadingView, 0);
         emptyView.setAnimateLayoutChange(true);
         emptyView.showProgress(true, false);
         emptyView.title.setText(getString(R.string.NoResult));
         emptyView.subtitle.setText(getString(R.string.SearchEmptyViewFilteredSubtitle2));
-        contentView.addView(emptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.FILL, 12, 52 + 12, 12, 0));
 
         DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
         defaultItemAnimator.setDelayAnimations(false);
@@ -550,7 +643,10 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         listView.setVerticalScrollBarEnabled(false);
         listView.setFastScrollEnabled(RecyclerListView.FastScroll.LETTER_TYPE);
         listView.setLayoutManager(layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        listView.setAdapter(listViewAdapter);
+
+        // Use Bonyan Family Adapter
+        listView.setAdapter(familyListAdapter);
+
         listView.setClipToPadding(false);
         scrollHelper = new RecyclerAnimationScrollHelper(listView, layoutManager);
         scrollHelper.setScrollListener(this::blur3_InvalidateBlur);
@@ -558,8 +654,10 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
 
         contentView.addView(searchField, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 52, Gravity.TOP, 6, 0, 6, 0));
 
-        listView.setEmptyView(emptyView);
+        // Use family empty view
+        listView.setEmptyView(familyEmptyView);
         listView.setAnimateEmptyView(true, RecyclerListView.EMPTY_VIEW_ANIMATION_TYPE_ALPHA);
+        updateEmptyView();
         listView.setOnItemClickListener((view, position, x, y) -> {
             if (listView.getAdapter() == searchListViewAdapter) {
                 if (searchListViewAdapter.includeSearch) {
@@ -925,21 +1023,13 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
             }
         });
 
-        if (!createSecretChat && !returnAsResult) {
-            floatingButton = new FragmentFloatingButton(context, resourceProvider);
-            contentView.addView(floatingButton, FragmentFloatingButton.createDefaultLayoutParams());
-            floatingButton.setOnClickListener(v -> {
-                if (MessagesController.getInstance(currentAccount).isFrozen()) {
-                    AccountFrozenAlert.show(currentAccount);
-                    return;
-                }
-                new NewContactBottomSheet(BonyanFamilyFragment.this, getContext()).show();
-            });
-
-            floatingButton.setAnimation(R.raw.write_contacts_fab_icon, 44);
-            floatingButton.imageView.getAnimatedDrawable().setCurrentFrame(floatingButton.imageView.getAnimatedDrawable().getFramesCount() - 1);
-            floatingButton.setContentDescription(getString(R.string.CreateNewContact));
-        }
+        // Bonyan Family FAB for adding/linking members
+        familyFab = new FragmentFloatingButton(context, resourceProvider);
+        contentView.addView(familyFab, FragmentFloatingButton.createDefaultLayoutParams());
+        familyFab.setOnClickListener(v -> showFamilyFabSheet());
+        familyFab.setAnimation(R.raw.write_contacts_fab_icon, 44);
+        familyFab.imageView.getAnimatedDrawable().setCurrentFrame(familyFab.imageView.getAnimatedDrawable().getFramesCount() - 1);
+        familyFab.setContentDescription(getString(R.string.Bonyan_AddFamilyMember));
 
         if (initialSearchString != null) {
             actionBar.openSearchField(initialSearchString, false);
@@ -1652,15 +1742,96 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     }
 
     private void checkUi_floatingButtonPosition() {
-        if (floatingButton != null) {
-            floatingButton.setTranslationY(-navigationBarHeight - additionFloatingButtonOffset - additionalFloatingTranslation);
+        if (familyFab != null) {
+            familyFab.setTranslationY(-navigationBarHeight - additionFloatingButtonOffset - additionalFloatingTranslation);
         }
     }
 
     private void checkUi_floatingButtonVisible() {
-        if (floatingButton != null && listViewAdapter != null) {
-            floatingButton.setButtonVisible(floatingButtonVisibleByScroll && !searching && !listViewAdapter.isEmpty(), true);
+        if (familyFab != null && familyListAdapter != null) {
+            familyFab.setButtonVisible(floatingButtonVisibleByScroll && !searching, true);
         }
+    }
+
+    private void showFamilyFabSheet() {
+        BonyanFamilyFabSheet sheet = new BonyanFamilyFabSheet(getContext(), false);
+        sheet.setOnOptionSelectedListener(new BonyanFamilyFabSheet.OnOptionSelectedListener() {
+            @Override
+            public void onAddNewMember() {
+                // TODO: Navigate to Add New Member screen
+                showAddNewMemberDialog();
+            }
+
+            @Override
+            public void onLinkExistingUser() {
+                // TODO: Navigate to Link Existing User screen
+                showLinkExistingUserDialog();
+            }
+        });
+        sheet.show();
+    }
+
+    private void showAddNewMemberDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), resourceProvider);
+        builder.setTitle(getString(R.string.Bonyan_AddNewMember));
+        builder.setMessage("Add new member form will be implemented here.");
+        builder.setPositiveButton(getString(R.string.OK), null);
+        showDialog(builder.create());
+    }
+
+    private void showLinkExistingUserDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), resourceProvider);
+        builder.setTitle(getString(R.string.Bonyan_LinkExistingUser));
+        builder.setMessage("Link existing user search will be implemented here.");
+        builder.setPositiveButton(getString(R.string.OK), null);
+        showDialog(builder.create());
+    }
+
+    private void showFilterSheet() {
+        BonyanFamilyFilterSheet sheet = new BonyanFamilyFilterSheet(getContext(), false);
+        sheet.setOnFilterChangedListener(new BonyanFamilyFilterSheet.OnFilterChangedListener() {
+            @Override
+            public void onViewModeChanged(boolean isTreeView) {
+                // TODO: Switch between list and tree view
+            }
+
+            @Override
+            public void onSortCriteriaChanged(BonyanFamilyFilterSheet.SortCriteria criteria) {
+                // TODO: Apply sort criteria
+                sortPersonList(criteria);
+            }
+
+            @Override
+            public void onRelationshipFilterChanged(Map<String, Boolean> filters) {
+                // TODO: Apply relationship filters
+            }
+        });
+        sheet.show();
+    }
+
+    private void sortPersonList(BonyanFamilyFilterSheet.SortCriteria criteria) {
+        if (familyListAdapter == null) return;
+
+        List<Person> sortedList = new ArrayList<>(personList);
+        switch (criteria) {
+            case NAME:
+                sortedList.sort((a, b) -> {
+                    String nameA = a.getName() != null ? a.getName() : "";
+                    String nameB = b.getName() != null ? b.getName() : "";
+                    return nameA.compareToIgnoreCase(nameB);
+                });
+                break;
+            case REPUTATION:
+                sortedList.sort((a, b) -> b.getReputationScore() - a.getReputationScore());
+                break;
+            case BIRTH_YEAR:
+                sortedList.sort((a, b) -> b.getBirthYear() - a.getBirthYear());
+                break;
+            case RECENTLY_ADDED:
+                sortedList.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
+                break;
+        }
+        familyListAdapter.setData(sortedList);
     }
 
 

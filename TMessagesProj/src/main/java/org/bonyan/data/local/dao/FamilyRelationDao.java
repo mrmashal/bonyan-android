@@ -36,6 +36,9 @@ public interface FamilyRelationDao {
     @Query("SELECT * FROM family_relations WHERE person_a_id = :personId OR person_b_id = :personId")
     List<FamilyRelation> getByPersonId(String personId);
 
+    @Query("SELECT * FROM family_relations WHERE person_a_id = :personId")
+    List<FamilyRelation> getByPersonAId(String personId);
+
     @Query("SELECT * FROM family_relations WHERE sync_status = :syncStatus")
     List<FamilyRelation> getBySyncStatus(String syncStatus);
 

@@ -5,6 +5,31 @@
     <string name="BonyanTabPlanner">Planner</string>
     <string name="BonyanTabFamily">Family</string>
 
+    <!-- Bonyan Family Screen -->
+    <string name="Bonyan_FamilyTitle">Family</string>
+    <string name="Bonyan_AddFamilyMember">Add Family Member</string>
+    <string name="Bonyan_AddNewMember">Add New Member</string>
+    <string name="Bonyan_AddNewMemberDesc">Manually enter details for a new family member</string>
+    <string name="Bonyan_LinkExistingUser">Link Existing User</string>
+    <string name="Bonyan_LinkExistingUserDesc">Connect with a registered user and claim relationship</string>
+    <string name="Bonyan_FilterAndSort">Filter \u0026 Sort</string>
+    <string name="Bonyan_ViewMode">View Mode</string>
+    <string name="Bonyan_ListView">List View</string>
+    <string name="Bonyan_TreeView">Tree View</string>
+    <string name="Bonyan_SortBy">Sort By</string>
+    <string name="Bonyan_SortByName">Name</string>
+    <string name="Bonyan_SortByReputation">Reputation Score</string>
+    <string name="Bonyan_SortByBirthYear">Birth Year</string>
+    <string name="Bonyan_SortByRecentlyAdded">Recently Added</string>
+    <string name="Bonyan_RelationshipFilter">Relationship Filter</string>
+    <string name="Bonyan_RelImmediate">Immediate Family</string>
+    <string name="Bonyan_RelExtended">Extended Family</string>
+    <string name="Bonyan_RelPending">Pending Claims</string>
+    <string name="Bonyan_SearchFamily">Search family...</string>
+    <string name="Bonyan_NoFamilyMembers">No family members yet</string>
+    <string name="Bonyan_NoFamilyMembersDesc">Start building your family tree by adding members or linking with existing users</string>
+    <string name="Bonyan_EmptyFamilyButton">Add First Member</string>
+
     <!-- Bonyan Planner -->
     <string name="PlannerTitle">Planner</string>
     <string name="PlannerToday">Today</string>
