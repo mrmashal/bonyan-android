@@ -123,7 +123,7 @@ public class BonyanFamilyListAdapter extends RecyclerListView.SectionsAdapter {
     }
 
     @Override
-    public View getSectionHeaderView(int sectionIndex, View view, ViewGroup parent) {
+    public View getSectionHeaderView(int sectionIndex, View view) {
         if (view == null) {
             view = new LetterSectionCell(context);
         }
@@ -149,29 +149,27 @@ public class BonyanFamilyListAdapter extends RecyclerListView.SectionsAdapter {
     }
 
     @Override
-    public void onBindViewHolder(int section, int position, RecyclerView.ViewHolder holder, int viewType) {
-        if (viewType == VIEW_TYPE_PERSON) {
-            BonyanPersonCell cell = (BonyanPersonCell) holder.itemView;
-            int globalPosition = getGlobalPosition(section, position);
-            if (globalPosition >= 0 && globalPosition < persons.size()) {
-                Person person = persons.get(globalPosition);
-                String relation = relationMap.get(person.getId());
-                cell.setPerson(person);
-                cell.setRelationType(relation);
+    public void onBindViewHolder(int section, int position, RecyclerListView.Holder holder) {
+        BonyanPersonCell cell = (BonyanPersonCell) holder.itemView;
+        int globalPosition = getGlobalPosition(section, position);
+        if (globalPosition >= 0 && globalPosition < persons.size()) {
+            Person person = persons.get(globalPosition);
+            String relation = relationMap.get(person.getId());
+            cell.setPerson(person);
+            cell.setRelationType(relation);
 
-                cell.setOnClickListener(v -> {
-                    if (clickListener != null) {
-                        clickListener.onPersonClick(person, globalPosition);
-                    }
-                });
+            cell.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onPersonClick(person, globalPosition);
+                }
+            });
 
-                cell.setOnLongClickListener(v -> {
-                    if (longClickListener != null) {
-                        return longClickListener.onPersonLongClick(person, globalPosition);
-                    }
-                    return false;
-                });
-            }
+            cell.setOnLongClickListener(v -> {
+                if (longClickListener != null) {
+                    return longClickListener.onPersonLongClick(person, globalPosition);
+                }
+                return false;
+            });
         }
     }
 
@@ -181,12 +179,21 @@ public class BonyanFamilyListAdapter extends RecyclerListView.SectionsAdapter {
     }
 
     @Override
-    public int getItemCount() {
-        int count = 0;
-        for (Section section : sections) {
-            count += section.count;
+    public boolean isEnabled(RecyclerView.ViewHolder holder, int section, int row) {
+        return true;
+    }
+
+    @Override
+    public Object getItem(int section, int position) {
+        int globalPosition = 0;
+        for (int i = 0; i < section && i < sections.size(); i++) {
+            globalPosition += sections.get(i).count;
         }
-        return count;
+        globalPosition += position;
+        if (globalPosition >= 0 && globalPosition < persons.size()) {
+            return persons.get(globalPosition);
+        }
+        return null;
     }
 
     private int getGlobalPosition(int sectionIndex, int positionInSection) {

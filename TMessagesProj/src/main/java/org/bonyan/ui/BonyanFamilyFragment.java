@@ -1,6 +1,8 @@
 package org.bonyan.ui;
+import org.telegram.ui.*;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
+import static org.telegram.messenger.AndroidUtilities.lerp;
 import static org.telegram.messenger.LocaleController.getString;
 
 import android.Manifest;
@@ -12,8 +14,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +65,7 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.utils.SearchTextWatcher;
 import org.telegram.messenger.SecretChatHelper;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
@@ -68,15 +80,23 @@ import org.telegram.ui.ActionBar.BackDrawable;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
+import org.telegram.ui.Adapters.ContactsAdapter;
+import org.telegram.ui.Adapters.SearchAdapter;
 import org.telegram.ui.Cells.GraySectionCell;
 import org.telegram.ui.Cells.LetterSectionCell;
+import org.telegram.ui.Cells.ProfileSearchCell;
 import org.telegram.ui.Cells.UserCell;
+import org.telegram.ui.Components.AlertsCreator;
 import org.telegram.ui.Components.Bulletin;
+import org.telegram.ui.Components.BulletinFactory;
+import org.telegram.ui.Components.ContactsEmptyView;
 import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.FlickerLoadingView;
+import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.FragmentFloatingButton;
 import org.telegram.ui.Components.FragmentSearchField;
 import org.telegram.ui.Components.LayoutHelper;
+import org.telegram.ui.Components.NumberTextView;
 import org.telegram.ui.Components.RecyclerAnimationScrollHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
@@ -86,6 +106,8 @@ import org.telegram.ui.Components.blur3.ViewGroupPartRenderer;
 import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
 import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceRenderNode;
 import org.telegram.ui.Components.inset.WindowAnimatedInsetsProvider;
+import org.telegram.ui.NewContactBottomSheet;
+import org.telegram.ui.ProfileActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,13 +135,10 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     private static final int filter_button = 2;
 
     private static final int ANIMATOR_ID_SEARCH_FIELD_VISIBLE = 0;
-//    private static final int ANIMATOR_ID_SEARCH_FIELD_HEIGHT = 1;
     private static final int ANIMATOR_ID_SEARCH_HAS_QUERY = 2;
-//
+
     private final BoolAnimator animatorSearchFieldVisible = new BoolAnimator(ANIMATOR_ID_SEARCH_FIELD_VISIBLE,
         this, CubicBezierInterpolator.EASE_OUT_QUINT, 350);
-//    private final FactorAnimator animatorSearchFieldHeight = new FactorAnimator(ANIMATOR_ID_SEARCH_FIELD_HEIGHT,
-//        this, CubicBezierInterpolator.EASE_OUT_QUINT, 350);
     private final BoolAnimator animatorSearchHasQuery = new BoolAnimator(ANIMATOR_ID_SEARCH_HAS_QUERY,
             this, CubicBezierInterpolator.EASE_OUT_QUINT, 350);
 
@@ -472,9 +491,7 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         familyListAdapter.setOnPersonClickListener((person, position) -> {
             // Navigate to person detail
             if (person != null) {
-                Bundle args = new Bundle();
-                args.putString("person_id", person.getId());
-                presentFragment(new BonyanPersonDetailFragment(args));
+                presentFragment(new BonyanPersonDetailFragment(person.getId()));
             }
         });
         familyListAdapter.setOnPersonLongClickListener((person, position) -> {
@@ -1788,7 +1805,7 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     }
 
     private void showFilterSheet() {
-        BonyanFamilyFilterSheet sheet = new BonyanFamilyFilterSheet(getContext(), false);
+        BonyanFamilyFilterSheet sheet = new BonyanFamilyFilterSheet(getContext(), false, getResourceProvider());
         sheet.setOnFilterChangedListener(new BonyanFamilyFilterSheet.OnFilterChangedListener() {
             @Override
             public void onViewModeChanged(boolean isTreeView) {

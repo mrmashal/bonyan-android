@@ -42,9 +42,11 @@ public class BonyanFamilyFilterSheet extends BottomSheet {
     private boolean isTreeView = false;
     private SortCriteria currentSort = SortCriteria.NAME;
     private Map<String, Boolean> relationshipFilters = new HashMap<>();
+    private final org.telegram.ui.ActionBar.Theme.ResourcesProvider resourceProvider;
 
-    public BonyanFamilyFilterSheet(Context context, boolean needFocus) {
-        super(context, needFocus);
+    public BonyanFamilyFilterSheet(Context context, boolean needFocus, org.telegram.ui.ActionBar.Theme.ResourcesProvider resourceProvider) {
+        super(context, needFocus, resourceProvider);
+        this.resourceProvider = resourceProvider;
         init();
     }
 
