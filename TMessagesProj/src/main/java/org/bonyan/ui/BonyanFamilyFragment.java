@@ -633,22 +633,24 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         listView.setSections(true);
         contentView.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundGray));
 
-        FlickerLoadingView flickerLoadingView = new FlickerLoadingView(context);
-        flickerLoadingView.setViewType(FlickerLoadingView.PROFILE_SEARCH_CELL);
-        flickerLoadingView.showDate(false);
-
-        // Bonyan Family Empty View
-        familyEmptyView = new StickerEmptyView(context, flickerLoadingView, StickerEmptyView.STICKER_TYPE_SEARCH);
-        familyEmptyView.addView(flickerLoadingView, 0);
+        // Bonyan Family Empty View - Create separate FlickerLoadingView instance
+        FlickerLoadingView familyFlickerView = new FlickerLoadingView(context);
+        familyFlickerView.setViewType(FlickerLoadingView.PROFILE_SEARCH_CELL);
+        familyFlickerView.showDate(false);
+        familyEmptyView = new StickerEmptyView(context, familyFlickerView, StickerEmptyView.STICKER_TYPE_SEARCH);
+        familyEmptyView.addView(familyFlickerView, 0);
         familyEmptyView.setAnimateLayoutChange(true);
         familyEmptyView.showProgress(false, false);
         familyEmptyView.title.setText(getString(R.string.Bonyan_NoFamilyMembers));
         familyEmptyView.subtitle.setText(getString(R.string.Bonyan_NoFamilyMembersDesc));
         contentView.addView(familyEmptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.FILL, 12, 52 + 12, 12, 0));
 
-        // Original empty view (keep for compatibility)
-        emptyView = new StickerEmptyView(context, flickerLoadingView, StickerEmptyView.STICKER_TYPE_SEARCH);
-        emptyView.addView(flickerLoadingView, 0);
+        // Original empty view (keep for compatibility) - Create separate FlickerLoadingView instance
+        FlickerLoadingView originalFlickerView = new FlickerLoadingView(context);
+        originalFlickerView.setViewType(FlickerLoadingView.PROFILE_SEARCH_CELL);
+        originalFlickerView.showDate(false);
+        emptyView = new StickerEmptyView(context, originalFlickerView, StickerEmptyView.STICKER_TYPE_SEARCH);
+        emptyView.addView(originalFlickerView, 0);
         emptyView.setAnimateLayoutChange(true);
         emptyView.showProgress(true, false);
         emptyView.title.setText(getString(R.string.NoResult));
