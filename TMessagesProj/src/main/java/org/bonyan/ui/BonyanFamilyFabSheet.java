@@ -49,6 +49,8 @@ public class BonyanFamilyFabSheet extends BottomSheet {
         LinearLayout container = new LinearLayout(getContext());
         container.setOrientation(LinearLayout.VERTICAL);
         container.setPadding(0, AndroidUtilities.dp(16), 0, AndroidUtilities.dp(16));
+        // Set background color to ensure the sheet is visible
+        container.setBackgroundColor(Theme.getColor(Theme.key_dialogBackground));
 
         // Title
         TextView titleView = new TextView(getContext());

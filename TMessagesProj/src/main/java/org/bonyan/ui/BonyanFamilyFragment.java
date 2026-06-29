@@ -135,6 +135,9 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     private ActionBarMenuItem filterItem;
     private StickerEmptyView familyEmptyView;
 
+    // Loading state tracking
+    private volatile boolean isFamilyDataLoading = true;
+
     private static final int filter_button = 2;
 
     private static final int ANIMATOR_ID_SEARCH_FIELD_VISIBLE = 0;
@@ -288,6 +291,16 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     private void loadFamilyData() {
         if (personDao == null) return;
 
+        // Set loading state
+        isFamilyDataLoading = true;
+        AndroidUtilities.runOnUIThread(() -> {
+            if (familyEmptyView != null) {
+                familyEmptyView.showProgress(true, false);
+                familyEmptyView.title.setText(getString(R.string.Loading));
+                familyEmptyView.subtitle.setText("");
+            }
+        });
+
         new Thread(() -> {
             try {
                 // Get all persons except logged in user
@@ -307,6 +320,7 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
 
                 final List<Person> finalPersons = persons;
                 AndroidUtilities.runOnUIThread(() -> {
+                    isFamilyDataLoading = false;
                     personList.clear();
                     personList.addAll(finalPersons);
                     if (familyListAdapter != null) {
@@ -316,7 +330,9 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
                     updateEmptyView();
                 });
             } catch (Exception e) {
+                isFamilyDataLoading = false;
                 FileLog.e(e);
+                AndroidUtilities.runOnUIThread(this::updateEmptyView);
             }
         }).start();
     }
@@ -324,7 +340,25 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
     private void updateEmptyView() {
         if (familyEmptyView == null) return;
 
+        // If still loading, show progress and don't show the "No family members" message yet
+        if (isFamilyDataLoading) {
+            familyEmptyView.showProgress(true, true);
+            familyEmptyView.title.setText(getString(R.string.Loading));
+            familyEmptyView.subtitle.setText("");
+            familyEmptyView.setVisibility(View.VISIBLE);
+            if (listView != null) {
+                listView.setVisibility(View.GONE);
+            }
+            return;
+        }
+
+        // Loading complete - show appropriate empty state
+        familyEmptyView.showProgress(false, true);
         boolean isEmpty = personList.isEmpty();
+        if (isEmpty) {
+            familyEmptyView.title.setText(getString(R.string.Bonyan_NoFamilyMembers));
+            familyEmptyView.subtitle.setText(getString(R.string.Bonyan_NoFamilyMembersDesc));
+        }
         familyEmptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         if (listView != null) {
             listView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);

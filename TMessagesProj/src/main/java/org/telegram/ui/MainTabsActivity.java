@@ -206,6 +206,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         blur3_updateColors();
         checkContactsTabBadge();
         checkUnreadCount(true);
+        updateSettingsTabTitle();
 
         Bulletin.Delegate delegate = new Bulletin.Delegate() {
             @Override
@@ -231,6 +232,23 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             } else {
                 tabs[INDEX_CONTACTS].setCounter(null, true, true);
             }
+        }
+    }
+
+    /**
+     * Bonyan: Updates the Settings tab title based on user login state.
+     * When user is logged in, shows "Family" (from BonyanTabFamily string).
+     * When user is not logged in, shows "Settings" (from MainTabsSettings string).
+     */
+    private void updateSettingsTabTitle() {
+        if (tabs == null || tabs[INDEX_SETTINGS] == null) {
+            return;
+        }
+        boolean isLoggedIn = UserConfig.getInstance(currentAccount).isClientActivated();
+        if (isLoggedIn) {
+            tabs[INDEX_SETTINGS].setText(LocaleController.getString(R.string.BonyanTabFamily));
+        } else {
+            tabs[INDEX_SETTINGS].setText(LocaleController.getString(R.string.MainTabsSettings));
         }
     }
 
@@ -297,6 +315,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         }
         checkUi_callTabVisible(getUserConfig().showCallsTab, false);
 
+        updateSettingsTabTitle();
         selectTab(viewPager.getCurrentPosition(), false);
 
         iBlur3SourceColor.setColor(getThemedColor(Theme.key_windowBackgroundWhite));
