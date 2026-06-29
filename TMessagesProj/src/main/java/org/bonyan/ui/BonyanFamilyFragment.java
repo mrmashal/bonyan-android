@@ -608,8 +608,12 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 measureChildWithMargins(actionBar, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                ((MarginLayoutParams) emptyView.getLayoutParams()).topMargin = actionBar.getMeasuredHeight() + dp(DialogsActivity.SEARCH_FIELD_HEIGHT);
-                ((MarginLayoutParams) headerShadowView.getLayoutParams()).topMargin = actionBar.getMeasuredHeight();
+                if (emptyView != null && emptyView.getLayoutParams() != null) {
+                    ((MarginLayoutParams) emptyView.getLayoutParams()).topMargin = actionBar.getMeasuredHeight() + dp(DialogsActivity.SEARCH_FIELD_HEIGHT);
+                }
+                if (headerShadowView != null && headerShadowView.getLayoutParams() != null) {
+                    ((MarginLayoutParams) headerShadowView.getLayoutParams()).topMargin = actionBar.getMeasuredHeight();
+                }
 
                 checkUi_listViewPadding();
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
