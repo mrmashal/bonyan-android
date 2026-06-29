@@ -35,6 +35,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -63,6 +64,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
+import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.utils.SearchTextWatcher;
@@ -85,6 +87,7 @@ import org.telegram.ui.Adapters.SearchAdapter;
 import org.telegram.ui.Cells.GraySectionCell;
 import org.telegram.ui.Cells.LetterSectionCell;
 import org.telegram.ui.Cells.ProfileSearchCell;
+import org.telegram.ui.Cells.TextCell;
 import org.telegram.ui.Cells.UserCell;
 import org.telegram.ui.Components.AlertsCreator;
 import org.telegram.ui.Components.Bulletin;
@@ -491,7 +494,7 @@ public class BonyanFamilyFragment extends BonyanBaseFragment implements FactorAn
         familyListAdapter.setOnPersonClickListener((person, position) -> {
             // Navigate to person detail
             if (person != null) {
-                presentFragment(new BonyanPersonDetailFragment(person.getId()));
+                presentFragment(new BonyanPersonDetailFragment(person));
             }
         });
         familyListAdapter.setOnPersonLongClickListener((person, position) -> {

@@ -38,7 +38,7 @@ public class BonyanFamilyFabSheet extends BottomSheet {
     }
 
     public BonyanFamilyFabSheet(Context context, boolean needFocus, int backgroundType) {
-        super(context, needFocus, backgroundType, null);
+        super(context, needFocus, (Theme.ResourcesProvider) null);
         init();
     }
 

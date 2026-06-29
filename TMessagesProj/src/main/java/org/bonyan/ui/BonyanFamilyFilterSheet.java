@@ -100,7 +100,7 @@ public class BonyanFamilyFilterSheet extends BottomSheet {
         container.addView(sortHeader);
 
         for (SortCriteria criteria : SortCriteria.values()) {
-            CheckBoxCell sortCell = new CheckBoxCell(getContext(), 1, false, resourceProvider);
+            CheckBoxCell sortCell = new CheckBoxCell(getContext(), CheckBoxCell.TYPE_CHECK_BOX_DEFAULT, 17, false, resourceProvider);
             String label;
             switch (criteria) {
                 case NAME:

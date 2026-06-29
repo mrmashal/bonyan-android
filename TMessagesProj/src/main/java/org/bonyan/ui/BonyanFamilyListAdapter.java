@@ -12,6 +12,8 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.ui.Cells.LetterSectionCell;
 import org.telegram.ui.Components.RecyclerListView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +151,7 @@ public class BonyanFamilyListAdapter extends RecyclerListView.SectionsAdapter {
     }
 
     @Override
-    public void onBindViewHolder(int section, int position, RecyclerListView.Holder holder) {
+    public void onBindViewHolder(int section, int position, RecyclerView.ViewHolder holder) {
         BonyanPersonCell cell = (BonyanPersonCell) holder.itemView;
         int globalPosition = getGlobalPosition(section, position);
         if (globalPosition >= 0 && globalPosition < persons.size()) {
@@ -220,5 +222,47 @@ public class BonyanFamilyListAdapter extends RecyclerListView.SectionsAdapter {
             return sections.get(sectionIndex).letter;
         }
         return null;
+    }
+
+    @Override
+    public void getPositionForScrollProgress(RecyclerListView listView, float progress, int[] position) {
+        if (sections.isEmpty() || persons.isEmpty()) {
+            position[0] = 0;
+            position[1] = 0;
+            return;
+        }
+        int totalItems = getItemCount();
+        int targetPosition = (int) (progress * totalItems);
+        targetPosition = Math.max(0, Math.min(targetPosition, totalItems - 1));
+
+        // Find which section this position belongs to
+        int section = findSectionForPosition(targetPosition);
+        int positionInSection = findPositionInSectionForPosition(targetPosition);
+
+        position[0] = section;
+        position[1] = positionInSection;
+    }
+
+    private int findSectionForPosition(int position) {
+        int count = 0;
+        for (int i = 0; i < sections.size(); i++) {
+            count += sections.get(i).count;
+            if (position < count) {
+                return i;
+            }
+        }
+        return sections.size() - 1;
+    }
+
+    private int findPositionInSectionForPosition(int position) {
+        int count = 0;
+        for (int i = 0; i < sections.size(); i++) {
+            int sectionCount = sections.get(i).count;
+            if (position < count + sectionCount) {
+                return position - count;
+            }
+            count += sectionCount;
+        }
+        return 0;
     }
 }
