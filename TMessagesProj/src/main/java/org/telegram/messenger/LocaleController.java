@@ -602,125 +602,55 @@ public class LocaleController {
         languagesDict.put(localeInfo.shortName, localeInfo);
 
         localeInfo = new LocaleInfo();
-        localeInfo.name = "Italiano";
-        localeInfo.nameEnglish = "Italian";
-        localeInfo.shortName = localeInfo.pluralLangCode = "it";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
-
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Español";
-        localeInfo.nameEnglish = "Spanish";
-        localeInfo.shortName = localeInfo.pluralLangCode = "es";
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
-
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Deutsch";
-        localeInfo.nameEnglish = "German";
-        localeInfo.shortName = localeInfo.pluralLangCode = "de";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
-
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Nederlands";
-        localeInfo.nameEnglish = "Dutch";
-        localeInfo.shortName = localeInfo.pluralLangCode = "nl";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
-
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "العربية";
-        localeInfo.nameEnglish = "Arabic";
-        localeInfo.shortName = localeInfo.pluralLangCode = "ar";
+        localeInfo.name = "فارسی";
+        localeInfo.nameEnglish = "Persian";
+        localeInfo.shortName = localeInfo.pluralLangCode = "fa";
         localeInfo.pathToFile = null;
         localeInfo.builtIn = true;
         localeInfo.isRtl = true;
         languages.add(localeInfo);
         languagesDict.put(localeInfo.shortName, localeInfo);
 
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Português (Brasil)";
-        localeInfo.nameEnglish = "Portuguese (Brazil)";
-        localeInfo.shortName = localeInfo.pluralLangCode = "pt_br";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
+        // Bonyan: No remote/unofficial languages
+        // loadOtherLanguages();
+        // if (remoteLanguages.isEmpty()) {
+        //     AndroidUtilities.runOnUIThread(() -> loadRemoteLanguages(UserConfig.selectedAccount));
+        // }
 
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "한국어";
-        localeInfo.nameEnglish = "Korean";
-        localeInfo.shortName = localeInfo.pluralLangCode = "ko";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
+        // for (int a = 0; a < otherLanguages.size(); a++) {
+        //     LocaleInfo locale = otherLanguages.get(a);
+        //     languages.add(locale);
+        //     languagesDict.put(locale.getKey(), locale);
+        // }
 
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Українська";
-        localeInfo.nameEnglish = "Ukrainian";
-        localeInfo.shortName = localeInfo.pluralLangCode = "uk";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
+        // for (int a = 0; a < remoteLanguages.size(); a++) {
+        //     LocaleInfo locale = remoteLanguages.get(a);
+        //     LocaleInfo existingLocale = getLanguageFromDict(locale.getKey());
+        //     if (existingLocale != null) {
+        //         existingLocale.pathToFile = locale.pathToFile;
+        //         existingLocale.version = locale.version;
+        //         existingLocale.baseVersion = locale.baseVersion;
+        //         existingLocale.serverIndex = locale.serverIndex;
+        //         remoteLanguages.set(a, existingLocale);
+        //     } else {
+        //         languages.add(locale);
+        //         languagesDict.put(locale.getKey(), locale);
+        //     }
+        // }
 
-        localeInfo = new LocaleInfo();
-        localeInfo.name = "Русский";
-        localeInfo.nameEnglish = "Russian";
-        localeInfo.shortName = localeInfo.pluralLangCode = "ru";
-        localeInfo.pathToFile = null;
-        localeInfo.builtIn = true;
-        languages.add(localeInfo);
-        languagesDict.put(localeInfo.shortName, localeInfo);
-
-        loadOtherLanguages();
-        if (remoteLanguages.isEmpty()) {
-            AndroidUtilities.runOnUIThread(() -> loadRemoteLanguages(UserConfig.selectedAccount));
-        }
-
-        for (int a = 0; a < otherLanguages.size(); a++) {
-            LocaleInfo locale = otherLanguages.get(a);
-            languages.add(locale);
-            languagesDict.put(locale.getKey(), locale);
-        }
-
-        for (int a = 0; a < remoteLanguages.size(); a++) {
-            LocaleInfo locale = remoteLanguages.get(a);
-            LocaleInfo existingLocale = getLanguageFromDict(locale.getKey());
-            if (existingLocale != null) {
-                existingLocale.pathToFile = locale.pathToFile;
-                existingLocale.version = locale.version;
-                existingLocale.baseVersion = locale.baseVersion;
-                existingLocale.serverIndex = locale.serverIndex;
-                remoteLanguages.set(a, existingLocale);
-            } else {
-                languages.add(locale);
-                languagesDict.put(locale.getKey(), locale);
-            }
-        }
-
-        for (int a = 0; a < unofficialLanguages.size(); a++) {
-            LocaleInfo locale = unofficialLanguages.get(a);
-            LocaleInfo existingLocale = getLanguageFromDict(locale.getKey());
-            if (existingLocale != null) {
-                existingLocale.pathToFile = locale.pathToFile;
-                existingLocale.version = locale.version;
-                existingLocale.baseVersion = locale.baseVersion;
-                existingLocale.serverIndex = locale.serverIndex;
-                unofficialLanguages.set(a, existingLocale);
-            } else {
-                languagesDict.put(locale.getKey(), locale);
-            }
-        }
+        // for (int a = 0; a < unofficialLanguages.size(); a++) {
+        //     LocaleInfo locale = unofficialLanguages.get(a);
+        //     LocaleInfo existingLocale = getLanguageFromDict(locale.getKey());
+        //     if (existingLocale != null) {
+        //         existingLocale.pathToFile = locale.pathToFile;
+        //         existingLocale.version = locale.version;
+        //         existingLocale.baseVersion = locale.baseVersion;
+        //         existingLocale.serverIndex = locale.serverIndex;
+        //         unofficialLanguages.set(a, existingLocale);
+        //     } else {
+        //         languagesDict.put(locale.getKey(), locale);
+        //     }
+        // }
 
         systemDefaultLocale = Locale.getDefault();
         is24HourFormat = DateFormat.is24HourFormat(ApplicationLoader.applicationContext);
