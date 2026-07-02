@@ -10387,11 +10387,11 @@
     <string name="GiftAuctionWearInfo3Header">Proof of Ownership</string>
     <string name="GiftAuctionWearInfo3Text">Tapping the icon of this item next to your name will show its info and owner.</string>
 
-    <string name="MainTabsContacts">Planner</string>
-    <string name="MainTabsCalls">Family</string>
-    <string name="MainTabsChats">Missions</string>
+    <string name="MainTabsContacts">Contacts</string>
+    <string name="MainTabsCalls">Calls</string>
+    <string name="MainTabsChats">Chats</string>
     <string name="MainTabsProfile">Profile</string>
-    <string name="MainTabsSettings">Family</string>
+    <string name="MainTabsSettings">Settings</string>
     <string name="SwitchThemeToDay">Day Mode</string>
     <string name="SwitchThemeToNight">Night Mode</string>
 

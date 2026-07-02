@@ -468,7 +468,7 @@
     <string name="ImportCount">%1$s از %2$s</string>
     <string name="ImportDone">انجام شد</string>
     <string name="ImportDoneTitle">گفتگو با موفقیت درون‌ریزی شد!</string>
-    <string name="ImportDoneInfo">با درون‌ریزی گفتگوهای بیشتر به تلگرام، فضای دستگاه خود را ذخیره کنید.</string>
+    <string name="ImportDoneInfo">با درون‌ریزی گفتگوهای بیشتر به بنیان، فضای دستگاه خود را ذخیره کنید.</string>
     <string name="ImporImportingService">در حال درون‌ریزی پیام‌ها و رسانه‌ها...</string>
     <string name="ImporImportingStickersService">در حال درون‌ریزی استیکرها...</string>
     <string name="ImportHeader">درون‌ریزی پیام‌ها و رسانه‌ها به...</string>
@@ -746,7 +746,7 @@
     <string name="ChannelSignMessagesInfo">نام مدیران را به پیام‌هایی که ارسال می‌کنند اضافه کنید.</string>
     <string name="EditAdmin">حقوق مدیر</string>
     <string name="EditAdminRank">عنوان سفارشی</string>
-    <string name="EditAdminRankInfo">یک عنوان سفارشی که به جای '%1$s' برای همه اعضا نمایش داده می‌شود.</string>
+    <string name="EditAdminRankInfo">یک عنوان سفارشی که به جای \'%1$s\' برای همه اعضا نمایش داده می‌شود.</string>
     <string name="EditMemberRankInfo">یک برچسب کوتاه در کنار نام %1$s اضافه کنید.</string>
     <string name="EditAdminWhatCanDo">این مدیر چه کارهایی می‌تواند انجام دهد؟</string>
     <string name="EditAdminChangeChannelInfo">تغییر اطلاعات کانال</string>
@@ -1299,7 +1299,7 @@
     <string name="SendingVideoStatus">در حال ارسال ویدیو...</string>
     <string name="RecordingVideoStatus">در حال ضبط ویدیو...</string>
     <string name="SendingFile">در حال ارسال فایل...</string>
-    <string name="GotAQuestion">سوالی درباره\nتلگرام دارید؟</string>
+    <string name="GotAQuestion">سوالی درباره\nبنیان دارید؟</string>
     <string name="ChatGallery">گالری</string>
     <string name="ChatLocation">مکان</string>
     <string name="ChatSticker">استیکر</string>
@@ -2753,7 +2753,7 @@
     <string name="AuthAnotherClientInfo1">بنیان را از *getdesktop.bonyan.rahetamaddon.ir* روی رایانه خود دانلود کنید.</string>
     <string name="AuthAnotherClientInfo2">بنیان دسکتاپ را اجرا کنید تا کد QR دریافت شود.</string>
     <string name="AuthAnotherClientInfo3">برای اتصال حساب خود، کد QR را اسکن کنید.</string>
-    <string name="AuthAnotherClientUrl">از این کد می‌توان برای اجازه ورود شخصی به حساب بنیان شما استفاده کرد.\n\nبرای تأیید ورود به تلگرام، لطفاً به Settings &gt; Devices &gt; Scan QR بروید و کد را اسکن کنید.</string>
+    <string name="AuthAnotherClientUrl">از این کد می‌توان برای اجازه ورود شخصی به حساب بنیان شما استفاده کرد.\n\nبرای تأیید ورود به بنیان، لطفاً به Settings &gt; Devices &gt; Scan QR بروید و کد را اسکن کنید.</string>
     <string name="QRCodePermissionNoCameraWithHint">**بنیان** برای اسکن کدهای QR به دسترسی دوربین نیاز دارد. روی Settings -> Permissions ضربه بزنید و **Camera** را فعال کنید.</string>
     <string name="SetProfilePhoto">تنظیم عکس پروفایل</string>
     <string name="AppUpdate">به‌روزرسانی بنیان</string>
@@ -2827,7 +2827,7 @@
     <string name="PassportRequestedInformation">اطلاعات درخواست‌شده</string>
     <string name="PassportProvidedInformation">اطلاعات ارائه‌شده</string>
     <string name="PassportInfoTitle">بنیان پاسپورت چیست؟</string>
-    <string name="PassportInfo2">با بنیان پاسپورت می‌توانید به‌راحتی در وب‌سایت‌ها و سرویس‌هایی که نیاز به تأیید هویت دارند ثبت‌نام کنید.\n\nاطلاعات، داده‌های شخصی و مدارک شما با رمزنگاری سرتاسری محافظت می‌شوند. هیچ‌کس، حتی تلگرام، بدون اجازه شما به آن‌ها دسترسی ندارد.\n\nبرای کسب اطلاعات بیشتر می‌توانید از *FAQ* ما بازدید کنید.</string>
+    <string name="PassportInfo2">با بنیان پاسپورت می‌توانید به‌راحتی در وب‌سایت‌ها و سرویس‌هایی که نیاز به تأیید هویت دارند ثبت‌نام کنید.\n\nاطلاعات، داده‌های شخصی و مدارک شما با رمزنگاری سرتاسری محافظت می‌شوند. هیچ‌کس، حتی بنیان، بدون اجازه شما به آن‌ها دسترسی ندارد.\n\nبرای کسب اطلاعات بیشتر می‌توانید از *FAQ* ما بازدید کنید.</string>
     <string name="PassportInfoUrl">https://bonyan.rahetamaddon.ir/faq#passport</string>
     <string name="TelegramPassportCreatePasswordInfo">لطفاً برای محافظت از داده‌های شخصی خود با رمزنگاری سرتاسری، یک رمز عبور ایجاد کنید.\n\nاین رمز هنگام ورود به بنیان روی دستگاه جدید نیز موردنیاز خواهد بود.</string>
     <string name="TelegramPassportCreatePassword">ایجاد رمز عبور</string>
@@ -4023,8 +4023,8 @@
     <string name="SendMessagesToGroupText">آیا می‌خواهید این پیام را به **%1$s** بفرستید؟</string>
     <string name="SendGameToGroupText">آیا می‌خواهید این بازی را با **%1$s** به اشتراک بگذارید؟</string>
     <string name="SendContactToGroupText">آیا می‌خواهید این مخاطب را برای **%1$s** بفرستید؟</string>
-    <string name="NoUsernameFound">حساب تلگرامی با این نام کاربری یافت نشد.</string>
-    <string name="NoPhoneFound">حساب تلگرامی با این شماره تلفن یافت نشد.</string>
+    <string name="NoUsernameFound">حساب بنیانی با این نام کاربری یافت نشد.</string>
+    <string name="NoPhoneFound">حساب بنیانی با این شماره تلفن یافت نشد.</string>
     <string name="NoFolderFound">لیست چتی یافت نشد.</string>
     <string name="NoTopicsCreated">موضوعی ایجاد نشده است</string>
     <string name="NoMonoforumTopicsCreated">پیامی دریافت نشده است</string>
@@ -4191,7 +4191,7 @@
     <string name="VoipInCallBranding">تماس بنیان</string>
     <string name="VoipInVideoCallBranding">تماس ویدیویی بنیان</string>
     <string name="VoipInConferenceCallBranding">تماس گروهی بنیان</string>
-    <string name="VoipOutgoingCall">تماس تلگرامی در حال انجام</string>
+    <string name="VoipOutgoingCall">تماس بنیانی در حال انجام</string>
     <string name="VoipVoiceChat">گفتگوی صوتی در حال انجام</string>
     <string name="VoipLiveStream">پخش زنده در حال انجام</string>
     <string name="VoipConference">تماس ویدیویی در حال انجام</string>
@@ -4254,7 +4254,7 @@
     <string name="VoipPeerOutdated">برنامهٔ **%1$s** از تماس‌ها پشتیبانی نمی‌کند. آن‌ها باید برنامه خود را به‌روزرسانی کنند تا بتوانید با آن‌ها تماس بگیرید.</string>
     <string name="VoipPeerVideoOutdated">متأسفیم، **%1$s** از نسخه قدیمی بنیان استفاده می‌کند که از تماس ویدیویی پشتیبانی نمی‌کند.</string>
     <string name="VoipPeerVideoOutdatedMakeVoice">برقراری تماس صوتی</string>
-    <string name="VoipRateCallAlert">لطفاً کیفیت تماس تلگرامی خود را ارزیابی کنید</string>
+    <string name="VoipRateCallAlert">لطفاً کیفیت تماس بنیانی خود را ارزیابی کنید</string>
     <string name="VoipNeedMicPermissionWithHint">**بنیان** برای برقراری تماس به دسترسی میکروفن نیاز دارد. به تنظیمات -> مجوزها بروید و **میکروفن** را فعال کنید.</string>
     <string name="VoipNeedMicCameraPermissionWithHint">**بنیان** برای برقراری تماس ویدیویی به دسترسی دوربین و میکروفن نیاز دارد. به تنظیمات -> مجوزها بروید و **میکروفن** و **دوربین** را فعال کنید.</string>
     <string name="VoipNeedCameraPermission">بنیان برای برقراری تماس ویدیویی به دسترسی دوربین شما نیاز دارد.</string>
@@ -4262,7 +4262,7 @@
     <string name="CallBack">تماس مجدد</string>
     <string name="CallAgain">تماس دوباره</string>
     <string name="DefaultRingtone">پیش‌فرض</string>
-    <string name="CallViaTelegram">تماس تلگرامی</string>
+    <string name="CallViaTelegram">تماس بنیانی</string>
     <string name="VideoCallViaTelegram">تماس ویدیویی بنیان</string>
     <string name="VoiceCallViaTelegram">تماس صوتی بنیان</string>
     <string name="VoiceCallViaCarrier">تماس از طریق اپراتور</string>
@@ -4288,9 +4288,9 @@
     <string name="QuickReplyDefault3">بعداً با شما تماس می‌گیرم.</string>
     <string name="QuickReplyDefault4">الان نمی‌توانم صحبت کنم. بعداً تماس می‌گیرید؟</string>
     <string name="AllowCustomQuickReply">اجازه سفارشی‌سازی</string>
-    <string name="VoipInCallBrandingWithName">تماس تلگرامی با %s</string>
-    <string name="VoipInVideoCallBrandingWithName">تماس ویدیویی تلگرامی با %s</string>
-    <string name="VoipErrorUnknown">در حال حاضر امکان برقراری تماس تلگرامی وجود ندارد.</string>
+    <string name="VoipInCallBrandingWithName">تماس بنیانی با %s</string>
+    <string name="VoipInVideoCallBrandingWithName">تماس ویدیویی بنیانی با %s</string>
+    <string name="VoipErrorUnknown">در حال حاضر امکان برقراری تماس بنیانی وجود ندارد.</string>
     <string name="RateCallEcho">صدای خودم را می‌شنیدم</string>
     <string name="RateCallNoise">صدای نویز پس‌زمینه می‌شنیدم</string>
     <string name="RateCallInterruptions">طرف مقابل مدام قطع می‌شد</string>
@@ -5825,7 +5825,7 @@
     <string name="Discard">لغو</string>
     <string name="EditTopic">ویرایش موضوع</string>
     <string name="EditTopicHide">نمایش در موضوعات</string>
-    <string name="EditTopicHideInfo">اگر موضوع 'عمومی' مخفی باشد، اعضای گروه می‌توانند برای مشاهده آن، لیست موضوعات را به پایین بکشند.</string>
+    <string name="EditTopicHideInfo">اگر موضوع \'عمومی\' مخفی باشد، اعضای گروه می‌توانند برای مشاهده آن، لیست موضوعات را به پایین بکشند.</string>
     <string name="NoTopics">هنوز موضوعی اینجا نیست</string>
     <string name="NoTopicsDescription">برای شروع اولین موضوع، دکمه زیر را لمس کنید.</string>
     <string name="NoTopicsDescriptionUser">پیام‌های قدیمی‌تر این گروه به موضوع **’%s’** منتقل شده‌اند.</string>
@@ -7722,7 +7722,7 @@
     <string name="BusinessBotsInfoLink">https://core.bonyan.rahetamaddon.ir/bots/api</string>
     <string name="BusinessBotLink">نام کاربری یا نشانی ربات</string>
     <string name="BusinessBotNotFound">چت‌بات یافت نشد</string>
-    <string name="BusinessBotLinkInfo">لینک ربات تلگرامی را که می‌خواهید چت‌های شما را به‌طور خودکار پردازش کند وارد کنید.</string>
+    <string name="BusinessBotLinkInfo">لینک ربات بنیانی را که می‌خواهید چت‌های شما را به‌طور خودکار پردازش کند وارد کنید.</string>
     <string name="BusinessBotChats">چت‌های قابل دسترسی برای ربات</string>
     <string name="BusinessBotUnsavedChanges">تنظیمات ربات کسب‌وکار را تغییر داده‌اید. تغییرات اعمال شوند؟</string>
     <string name="BusinessChatsAllPrivateExcept">همه چت‌های یک‌به‌یک به‌جز...</string>
@@ -8206,15 +8206,18 @@
     <string name="SensitiveContentSettingsToast">شما می‌توانید قابلیت نمایش رسانه‌های حساس را در **تنظیمات چت > نمایش محتوای ۱۸+** به‌روزرسانی کنید</string>
     <string name="MenuTelegramStars">ستاره‌های شما</string>
     <string name="TelegramStars">ستاره‌های بنیان</string>
-    <string name="TelegramStarsInfo2">برای باز کردن قفل محتوا و خدمات در مینی‌اپ‌های تلگرام، ستاره بخرید. **درباره ستاره‌ها بیشتر بدانید >**</string>
+    <string name="TelegramStarsInfo2">برای باز کردن قفل محتوا و خدمات در مینی‌اپ‌های بنیان، ستاره بخرید. **درباره ستاره‌ها بیشتر بدانید >**</string>
     <string name="TelegramStarsChoose">انتخاب بسته</string>
     <string name="TelegramStarsGift">هدیه دادن ستاره به دوستان</string>
     <string name="StarsCount_one">%d ستاره</string>
     <string name="StarsCount_other">%d ستاره</string>
     <string name="TonCount_one">%d تون</string>
     <string name="TonCount_other">%d تون</string>
+
     <string name="StarsCountX">%s ستاره</string>
     <string name="TonCountX">%s تون</string>
+
+
     <string name="StarsTOS">با ادامه و خرید ستاره، شما با **شرایط و ضوابط** موافقت می‌کنید.</string>
     <string name="StarsTOSLink">https://bonyan.rahetamaddon.ir/tos</string>
     <string name="StarsBalance">موجودی</string>
@@ -8365,9 +8368,6 @@
     <string name="HashtagMessagesFoundChannel_one">%1$d پیام در **%2$s**</string>
     <string name="HashtagMessagesFoundChannel_other">%1$d پیام در **%2$s**</string>
     <string name="HashtagMessagesFoundSubtitle">مشاهده پست‌های با %s</string>
-    <string name="HashtagMessagesFoundChannel_one">%1$d پیام در **%2$s**</string>
-    <string name="HashtagMessagesFoundChannel_other">%1$d پیام در **%2$s**</string>
-    <string name="HashtagMessagesFoundSubtitle">مشاهده پست‌ها با %s</string>
     <string name="StoryLinkLimitTitle">سقف مجاز رسید</string>
     <string name="StoryLinkLimitMessage_other">شما نمی‌توانید بیش از %d لینک به یک استوری اضافه کنید.</string>
     <string name="BotStarsWithdrawalToast">برداشت بعدی در **%s** در دسترس خواهد بود.</string>
@@ -9222,7 +9222,7 @@
     <string name="AffiliateProgramEndedTitle">برنامه همکاری در فروش پایان یافت</string>
     <string name="AffiliateProgramEndedText">همکاران شرکت‌کننده مطلع شده‌اند. تمام لینک‌های ارجاع در **۲۴** ساعت غیرفعال خواهند شد.</string>
     <string name="AffiliateProgramStartedTitle">برنامه همکاری در فروش شروع شد</string>
-    <string name="AffiliateProgramStartedText">هر کاربر تلگرام، صاحب کانال یا توسعه‌دهنده مینی‌اپ اکنون می‌تواند به برنامه شما بپیوندد.</string>
+    <string name="AffiliateProgramStartedText">هر کاربر بنیان، صاحب کانال یا توسعه‌دهنده مینی‌اپ اکنون می‌تواند به برنامه شما بپیوندد.</string>
     <string name="AffiliateLinkExpiredTitle">لینک منقضی شده است</string>
     <string name="AffiliateLinkExpiredText">این لینک بخشی از یک برنامه همکاری در فروش بوده است که توسط صاحب برنامه خاتمه یافته است.</string>
     <string name="StoryTimeline">تایم‌لاین</string>
@@ -9558,7 +9558,7 @@
     <string name="JoinCall">پیوستن به تماس</string>
     <string name="ViewCollection">مشاهده کلکسیون</string>
     <string name="GroupCallLinkTitle">تماس گروهی</string>
-    <string name="GroupCallLinkText">از شما دعوت شده است تا به یک تماس تلگرامی بپیوندید.</string>
+    <string name="GroupCallLinkText">از شما دعوت شده است تا به یک تماس بنیانی بپیوندید.</string>
     <string name="GroupCallLinkText2One">**%1$s** قبلاً به این تماس پیوسته است.</string>
     <string name="GroupCallLinkText2Two">**%1$s** و **%2$s** قبلاً به این تماس پیوسته‌اند.</string>
     <string name="GroupCallLinkText2Many_one">**%2$s**، **%3$s** و %1$d نفر دیگر قبلاً به این تماس پیوسته‌اند.</string>
@@ -9595,7 +9595,7 @@
     <string name="GroupCallStopCallingInvite">توقف تماس</string>
     <string name="GroupCallDiscardInvite">لغو دعوت</string>
     <string name="BotRestoreStorageTitle">درون‌ریزی داده‌ها</string>
-    <string name="BotRestoreStorageText">**%s** درخواست دسترسی برای درون‌ریزی داده‌ها از حساب کاربری تلگرامی که قبلاً روی این دستگاه استفاده شده بود را دارد.</string>
+    <string name="BotRestoreStorageText">**%s** درخواست دسترسی برای درون‌ریزی داده‌ها از حساب کاربری بنیانی که قبلاً روی این دستگاه استفاده شده بود را دارد.</string>
     <string name="BotRestoreStorageHeader">حساب برای درون‌ریزی داده‌ها از</string>
     <string name="BotRestoreStorageButton">درون‌ریزی</string>
     <string name="BotRestoreStorageCreatedAt">ایجادشده در %s</string>
@@ -9884,7 +9884,7 @@
     <string name="AddTasks">افزودن کارها</string>
     <string name="MyTON">TON من</string>
     <string name="TONBalanceTitle">موجودی TON</string>
-    <string name="TONBalanceText">برای ارسال پیشنهاد پست به کانال‌های تلگرام، TON پیشنهاد دهید</string>
+    <string name="TONBalanceText">برای ارسال پیشنهاد پست به کانال‌های بنیان، TON پیشنهاد دهید</string>
     <string name="TodoMenuHint">شما در حال مشاهده اقدامات برای یک کار هستید.\nمی‌توانید به اقدامات برای فهرست تغییر وضعیت دهید.</string>
     <string name="PollMenuHint">شما در حال مشاهده اقدامات برای یک گزینه هستید.\nمی‌توانید به اقدامات برای نظرسنجی تغییر وضعیت دهید.</string>
     <string name="TodoMenuTabTask">کار</string>
@@ -10387,11 +10387,11 @@
     <string name="GiftAuctionWearInfo3Header">اثبات مالکیت</string>
     <string name="GiftAuctionWearInfo3Text">ضربه زدن روی آیکون این آیتم در کنار نام شما، اطلاعات و مالک آن را نشان می‌دهد.</string>
 
-    <string name="MainTabsContacts">برنامه‌ریز</string>
-    <string name="MainTabsCalls">خانواده</string>
-    <string name="MainTabsChats">مأموریت‌ها</string>
+    <string name="MainTabsContacts">مخاطبان</string>
+    <string name="MainTabsCalls">تماس‌ها</string>
+    <string name="MainTabsChats">گفتگوها</string>
     <string name="MainTabsProfile">پروفایل</string>
-    <string name="MainTabsSettings">خانواده</string>
+    <string name="MainTabsSettings">تنظیمات</string>
     <string name="SwitchThemeToDay">حالت روز</string>
     <string name="SwitchThemeToNight">حالت شب</string>
 
