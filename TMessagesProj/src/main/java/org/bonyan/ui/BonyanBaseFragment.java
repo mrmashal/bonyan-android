@@ -2,10 +2,12 @@ package org.bonyan.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.MainTabsActivity;
 
 /**
  * Base fragment for all Bonyan UI components.
@@ -14,7 +16,7 @@ import org.telegram.ui.ActionBar.Theme;
  * All Bonyan fragments should extend this class to maintain compatibility with
  * Telegram's navigation system and theme engine.
  */
-public abstract class BonyanBaseFragment extends BaseFragment {
+public abstract class BonyanBaseFragment extends BaseFragment implements MainTabsActivity.TabFragmentDelegate {
 
     public BonyanBaseFragment() {
         super();
@@ -59,5 +61,23 @@ public abstract class BonyanBaseFragment extends BaseFragment {
      */
     public void onBottomNavTabSelected(int tabId) {
         // Override in subclass to handle tab selection
+    }
+
+    /**
+     * Controls whether the parent tabs can slide based on the current fragment state.
+     * This method is called by the MainTabsActivity to determine if the ViewPager
+     * should allow horizontal scrolling.
+     *
+     * Override this method to prevent tab swiping in specific situations (e.g., when
+     * a dialog is open, during a scroll operation, etc.).
+     *
+     * @param ev The MotionEvent that triggered the scroll check
+     * @param forward true if checking forward scroll, false for backward
+     * @return true if the parent tabs can slide (default), false to block sliding
+     */
+    @Override
+    public boolean canParentTabsSlide(MotionEvent ev, boolean forward) {
+        // Default implementation: allow tab swiping
+        return true;
     }
 }
